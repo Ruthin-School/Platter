@@ -1,12 +1,12 @@
 [package]
 name = "platter"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2024"
 description = "A modern, secure, and efficient web application for managing dining operations, built with Rust and Actix-web"
-license = "AGPL-3.0"
-repository = "https://github.com/chxrlie/platter"
-homepage = "https://github.com/chxrlie/platter"
-documentation = "https://github.com/chxrlie/platter/blob/main/API.md"
+license = "AGPL-3.0-only"
+repository = "https://github.com/Ruthin-School/Platter"
+homepage = "https://github.com/Ruthin-School/Platter"
+documentation = "https://github.com/Ruthin-School/Platter/blob/main/API.md"
 readme = "README.md"
 keywords = ["web", "dashboard", "management", "dining", "menu"]
 categories = ["web-programming", "database-implementations"]

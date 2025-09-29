@@ -1,6 +1,6 @@
 # Platter
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/chxrlie/dining-hall-dashboard/actions)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/Ruthin-School/Platter/actions)
 [![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)](Cargo.toml)
 [![License](https://img.shields.io/badge/license-AGPLv3-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.80+-orange.svg)](https://www.rust-lang.org/)
@@ -41,8 +41,8 @@ A modern, secure, and efficient web application for managing dining operations, 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/chxrlie/dining-hall-dashboard.git
-   cd dining-hall-dashboard
+   git clone https://github.com/Ruthin-School/Platter.git
+   cd Platter
    ```
 
 2. Build and run the application:

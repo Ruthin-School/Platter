@@ -53,8 +53,8 @@ On your production server:
 
 ```bash
 # Clone the repository
-git clone https://github.com/chxrlie/dining-hall-dashboard.git
-cd dining-hall-dashboard
+git clone https://github.com/Ruthin-School/Platter.git
+cd Platter
 
 # Build the optimized binary
 cargo build --release
@@ -375,13 +375,3 @@ top -p $(pgrep dining-hall)
 # Monitor network connections
 netstat -tulpn | grep :8080
 ```
-
-## Scaling Considerations
-
-For high-availability deployments:
-- Use a load balancer with multiple instances
-- Store data in a database instead of JSON files
-- Implement proper session management strategies
-- Consider using Docker Swarm or Kubernetes for orchestration
-
-For more information on scaling, refer to the [DESIGN.md](DESIGN.md) document.
