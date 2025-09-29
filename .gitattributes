@@ -1,0 +1,11 @@
+# Exclude data files from crate publication
+/data/** export-ignore
+
+# Exclude static assets from crate publication  
+/static/** export-ignore
+
+# Exclude template files from crate publication
+/templates/** export-ignore
+
+# Exclude branding assets from crate publication
+/assets/** export-ignore

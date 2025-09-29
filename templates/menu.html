@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block title %}Menu - Dining Hall Dashboard{%
+ endblock %} {% block content %}
+<div class="menu-page">
+  <h1>Our Menu</h1>
+  
+  {% if notices %}
+  <div class="notices-section">
+    <h2>Important Notices</h2>
+    {% for notice in notices %}
+    <div class="notice-item">
+      <h3>{{ notice.title }}</h3>
+      <p>{{ notice.content }}</p>
+                  <small>Posted: {{ notice.created_at | date(format="%Y-%m-%d %H:%M") }}</small>    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  
+  <div class="menu-categories">
+    {% if menu_items %}
+      {% set current_category = "" %}
+      {% for item in menu_items %}
+        {% if item.category != current_category %}
+          {% if current_category != "" %}
+            </div> <!-- Close menu-items -->
+          </div> <!-- Close previous category -->
+          {% endif %}
+          <div class="menu-category">
+            <h2>{{ item.category }}</h2>
+            <div class="menu-items">
+            {% set_global current_category = item.category %}
+        {% endif %}
+        
+        <div class="menu-item">
+          <div class="menu-item-header">
+            <h3>{{ item.name }}</h3>
+          </div>
+          <p class="description">{{ item.description }}</p>
+          {% if item.allergens %}
+          <p class="allergens">
+            <strong>Allergens:</strong> {{ item.allergens | join(sep=", ") }}
+          </p>
+          {% endif %}
+        </div>
+      {% endfor %}
+      {% if current_category != "" %}
+        </div> <!-- Close menu-items -->
+      </div> <!-- Close last category -->
+      {% endif %}
+    {% else %}
+    <p>No menu items available at the moment.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

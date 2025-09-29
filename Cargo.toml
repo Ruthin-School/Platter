@@ -1,0 +1,42 @@
+[package]
+name = "platter"
+version = "0.4.0"
+edition = "2024"
+description = "A modern, secure, and efficient web application for managing dining operations, built with Rust and Actix-web"
+license = "AGPL-3.0"
+repository = "https://github.com/chxrlie/platter"
+homepage = "https://github.com/chxrlie/platter"
+documentation = "https://github.com/chxrlie/platter/blob/main/API.md"
+readme = "README.md"
+keywords = ["web", "dashboard", "management", "dining", "menu"]
+categories = ["web-programming", "database-implementations"]
+include = [
+    "src/**/*",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "API.md",
+    "DESIGN.md",
+    "DEVELOPMENT.md",
+    "DEPLOYMENT.md",
+    "SECURITY.md",
+]
+
+[dependencies]
+serde = { version = "1.0.226", features = ["derive"] }
+serde_json = "1.0.145"
+uuid = { version = "1.18.1", features = ["serde", "v4"] }
+thiserror = "2.0.16"
+chrono = { version ="0.4.42", features = ["serde"] }
+actix-web = "4.11.0"
+actix-rt = "2.11.0"
+actix-files = "0.6.8"
+actix-session = { version = "0.11.0", features = ["cookie-session"] }
+env_logger = "0.11.8"
+tera = "1.20.0"
+argon2 = "0.5.3"
+rand = "0.9.2"
+actix-cors = "0.7.1"
+tokio = { version = "1.47.1", features = ["full"] }
+log = "0.4.28"
