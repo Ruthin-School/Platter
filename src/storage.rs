@@ -45,6 +45,16 @@ pub struct AdminUser {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OAuthConfig {
+    pub client_id: String,
+    pub client_secret: String,
+    pub issuer_url: String,
+    pub redirect_url: String,
+    pub allowed_emails: Vec<String>,
+    pub enabled: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum ScheduleRecurrence {
     Daily,
     Weekly,
@@ -127,11 +137,13 @@ pub struct JsonStorage {
     admin_users: Arc<Mutex<Vec<AdminUser>>>,
     menu_presets: Arc<Mutex<Vec<MenuPreset>>>,
     menu_schedules: Arc<Mutex<Vec<MenuSchedule>>>,
+    oauth_config: Arc<Mutex<Option<OAuthConfig>>>,
     menu_items_path: String,
     notices_path: String,
     admin_users_path: String,
     menu_presets_path: String,
     menu_schedules_path: String,
+    oauth_config_path: String,
 }
 
 impl JsonStorage {
@@ -141,6 +153,7 @@ impl JsonStorage {
         admin_users_path: &str,
         menu_presets_path: &str,
         menu_schedules_path: &str,
+        oauth_config_path: &str,
     ) -> Result<Self, StorageError> {
         Self::new_with_paths(
             menu_items_path,
@@ -148,6 +161,7 @@ impl JsonStorage {
             admin_users_path,
             menu_presets_path,
             menu_schedules_path,
+            oauth_config_path,
         )
     }
 
@@ -158,6 +172,7 @@ impl JsonStorage {
         admin_users_path: &str,
         menu_presets_path: &str,
         menu_schedules_path: &str,
+        oauth_config_path: &str,
     ) -> Result<Self, StorageError> {
         log::debug!("JsonStorage::new() started");
 
@@ -176,6 +191,7 @@ impl JsonStorage {
         let admin_users = Arc::new(Mutex::new(Vec::new()));
         let menu_presets = Arc::new(Mutex::new(Vec::new()));
         let menu_schedules = Arc::new(Mutex::new(Vec::new()));
+        let oauth_config = Arc::new(Mutex::new(None));
 
         let storage = Self {
             menu_items,
@@ -183,11 +199,13 @@ impl JsonStorage {
             admin_users,
             menu_presets,
             menu_schedules,
+            oauth_config,
             menu_items_path: menu_items_path.to_string(),
             notices_path: notices_path.to_string(),
             admin_users_path: admin_users_path.to_string(),
             menu_presets_path: menu_presets_path.to_string(),
             menu_schedules_path: menu_schedules_path.to_string(),
+            oauth_config_path: oauth_config_path.to_string(),
         };
 
         // Load existing data or create empty files
@@ -210,6 +228,10 @@ impl JsonStorage {
         log::debug!("Loading menu schedules...");
         storage.load_menu_schedules()?;
         log::debug!("Menu schedules loaded successfully");
+
+        log::debug!("Loading OAuth config...");
+        storage.load_oauth_config()?;
+        log::debug!("OAuth config loaded successfully");
 
         log::debug!("JsonStorage::new() completed");
         Ok(storage)
@@ -398,6 +420,32 @@ impl JsonStorage {
             .map_err(|_| StorageError::PoisonError)?;
         *menu_schedules = schedules;
         log::debug!("Menu schedules loaded: {} items", menu_schedules.len());
+
+        Ok(())
+    }
+
+    pub fn load_oauth_config(&self) -> Result<(), StorageError> {
+        log::debug!(
+            "load_oauth_config() started for path: {}",
+            self.oauth_config_path
+        );
+        let path = Path::new(&self.oauth_config_path);
+        if !path.exists() {
+            log::debug!("OAuth config file does not exist, leaving as None");
+            return Ok(());
+        }
+
+        log::debug!("Reading OAuth config file");
+        let file_content = fs::read_to_string(path)?;
+        let config: OAuthConfig = serde_json::from_str(&file_content)?;
+
+        log::debug!("Acquiring OAuth config mutex");
+        let mut oauth_config = self
+            .oauth_config
+            .lock()
+            .map_err(|_| StorageError::PoisonError)?;
+        *oauth_config = Some(config);
+        log::debug!("OAuth config loaded");
 
         Ok(())
     }
@@ -789,6 +837,32 @@ impl JsonStorage {
                 io::ErrorKind::NotFound,
                 format!("Menu schedule with id {} not found", id),
             )))
+        }
+    }
+
+    pub fn get_oauth_config(&self) -> Result<Option<OAuthConfig>, StorageError> {
+        let oauth_config = self
+            .oauth_config
+            .lock()
+            .map_err(|_| StorageError::PoisonError)?;
+        Ok(oauth_config.clone())
+    }
+
+    pub fn save_oauth_config(&self, config: OAuthConfig) -> Result<(), StorageError> {
+        let json_data = serde_json::to_string_pretty(&config)?;
+        match fs::write(&self.oauth_config_path, json_data) {
+            Ok(_) => {
+                let mut oauth_config = self
+                    .oauth_config
+                    .lock()
+                    .map_err(|_| StorageError::PoisonError)?;
+                *oauth_config = Some(config);
+                Ok(())
+            }
+            Err(e) => {
+                log::error!("Failed to write to {}: {}", &self.oauth_config_path, e);
+                Err(e.into())
+            }
         }
     }
 }

@@ -7,9 +7,10 @@ use uuid::Uuid;
 use crate::auth::require_auth;
 use crate::error_handler::{AppError, ResultExt};
 use crate::storage::{
-    JsonStorage, MenuItem, MenuPreset, MenuSchedule, Notice, ScheduleRecurrence, ScheduleStatus,
+    JsonStorage, MenuItem, MenuPreset, MenuSchedule, Notice, OAuthConfig, ScheduleRecurrence, ScheduleStatus,
     StorageError,
 };
+use actix_web_openidconnect::openid_middleware::Authenticated;
 
 #[derive(Debug, Serialize)]
 pub struct ApiError {
@@ -330,6 +331,7 @@ pub async fn delete_notice(
 
 // Login page handler
 pub async fn login_page(
+    storage: web::Data<JsonStorage>,
     tera: web::Data<Tera>,
     session: actix_session::Session,
 ) -> Result<HttpResponse, ApiErrorType> {
@@ -343,12 +345,123 @@ pub async fn login_page(
             .finish());
     }
 
+    // Get OAuth config
+    let oauth_config = storage.get_oauth_config().map_err(ApiErrorType::Storage)?;
+
+    // Prepare context for template
+    let mut context = tera::Context::new();
+    if let Some(config) = oauth_config {
+        if config.enabled {
+            context.insert("oauth_enabled", &true);
+        }
+    }
+
     // If not logged in, render the login page
     let rendered = tera
-        .render("admin/login.html", &tera::Context::new())
+        .render("admin/login.html", &context)
         .map_err(|e| ApiErrorType::Validation(format!("Template error: {}", e)))?;
 
     Ok(HttpResponse::Ok().content_type("text/html").body(rendered))
+}
+
+// OAuth login handler - redirects to Microsoft Entra ID
+pub async fn oauth_login(storage: web::Data<JsonStorage>) -> Result<HttpResponse, ApiErrorType> {
+    let oauth_config = storage.get_oauth_config().map_err(ApiErrorType::Storage)?;
+
+    if let Some(config) = oauth_config {
+        if config.enabled {
+            // Create OAuth2 client
+            let client = oauth2::basic::BasicClient::new(
+                oauth2::ClientId::new(config.client_id.clone()),
+            )
+            .set_client_secret(oauth2::ClientSecret::new(config.client_secret.clone()))
+            .set_auth_uri(oauth2::AuthUrl::new("https://login.microsoftonline.com/common/oauth2/v2.0/authorize".to_string())
+                .map_err(|e| ApiErrorType::Validation(format!("Invalid auth URL: {}", e)))?)
+            .set_token_uri(oauth2::TokenUrl::new("https://login.microsoftonline.com/common/oauth2/v2.0/token".to_string())
+                .map_err(|e| ApiErrorType::Validation(format!("Invalid token URL: {}", e)))?)
+            .set_redirect_uri(
+                oauth2::RedirectUrl::new(config.redirect_url.clone())
+                    .map_err(|e| ApiErrorType::Validation(format!("Invalid redirect URL: {}", e)))?,
+            );
+
+            // Generate authorization URL
+            let (auth_url, _csrf_token) = client
+                .authorize_url(oauth2::CsrfToken::new_random)
+                .add_scope(oauth2::Scope::new("openid".to_string()))
+                .add_scope(oauth2::Scope::new("email".to_string()))
+                .add_scope(oauth2::Scope::new("profile".to_string()))
+                .url();
+
+            // Redirect to Microsoft Entra ID
+            Ok(HttpResponse::Found()
+                .insert_header(("Location", auth_url.as_str()))
+                .finish())
+        } else {
+            Ok(HttpResponse::BadRequest().json(ApiError {
+                error: "OAuth is not enabled".to_string(),
+            }))
+        }
+    } else {
+        Ok(HttpResponse::BadRequest().json(ApiError {
+            error: "OAuth configuration not found".to_string(),
+        }))
+    }
+}
+
+// OAuth callback handler - validates user and creates session
+pub async fn oauth_callback(
+    auth_data: Authenticated,
+    storage: web::Data<JsonStorage>,
+    session: actix_session::Session,
+) -> Result<HttpResponse, ApiErrorType> {
+    // Get OAuth config
+    let oauth_config = storage.get_oauth_config().map_err(ApiErrorType::Storage)?;
+
+    if let Some(config) = oauth_config {
+        if !config.enabled {
+            return Ok(HttpResponse::BadRequest().json(ApiError {
+                error: "OAuth is not enabled".to_string(),
+            }));
+        }
+
+        // Get user email from access token claims
+        let email_claim = auth_data.access.email()
+            .ok_or_else(|| ApiErrorType::Validation("Email not found in access token".to_string()))?;
+        let email = email_claim.to_string();
+
+        // Check if email is in allowed list
+        if !config.allowed_emails.contains(&email.to_lowercase()) {
+            return Ok(HttpResponse::Forbidden().json(ApiError {
+                error: "Email not authorized for admin access".to_string(),
+            }));
+        }
+
+        // Create session for OAuth user
+        session.insert("user_id", uuid::Uuid::new_v4()).map_err(|e| {
+            ApiErrorType::Validation(format!("Session error: {}", e))
+        })?;
+        session.insert("username", email.clone()).map_err(|e| {
+            ApiErrorType::Validation(format!("Session error: {}", e))
+        })?;
+        session.insert("user_type", "oauth").map_err(|e| {
+            ApiErrorType::Validation(format!("Session error: {}", e))
+        })?;
+        session.insert("oauth_provider", "microsoft").map_err(|e| {
+            ApiErrorType::Validation(format!("Session error: {}", e))
+        })?;
+        session.renew();
+
+        log::info!("OAuth login successful for user: {}", email);
+
+        // Redirect to admin dashboard
+        Ok(HttpResponse::SeeOther()
+            .insert_header(("Location", "/admin"))
+            .finish())
+    } else {
+        Ok(HttpResponse::BadRequest().json(ApiError {
+            error: "OAuth configuration not found".to_string(),
+        }))
+    }
 }
 
 // Admin Dashboard Handler

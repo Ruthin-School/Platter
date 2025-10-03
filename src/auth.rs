@@ -117,10 +117,25 @@ pub async fn login_handler(
 
 /// Logout handler for POST /admin/logout
 pub async fn logout_handler(session: Session) -> impl Responder {
+    // Check if this is an OAuth user
+    let is_oauth = session.get::<String>("user_type")
+        .map(|user_type| user_type == Some("oauth".to_string()))
+        .unwrap_or(false);
+
     session.purge();
-    HttpResponse::SeeOther()
-        .insert_header(("Location", "/admin/login"))
-        .finish()
+
+    if is_oauth {
+        // For OAuth users, we could redirect to OIDC logout endpoint
+        // But for now, just redirect to login
+        // TODO: Implement proper OIDC logout if needed
+        HttpResponse::SeeOther()
+            .insert_header(("Location", "/admin/login"))
+            .finish()
+    } else {
+        HttpResponse::SeeOther()
+            .insert_header(("Location", "/admin/login"))
+            .finish()
+    }
 }
 
 /// Middleware to protect admin routes

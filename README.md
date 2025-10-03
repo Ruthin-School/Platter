@@ -13,8 +13,9 @@ A modern, secure, and efficient web application for managing dining operations, 
 - **Notice System**: Real-time notices and announcements
 - **Scheduling**: Automated menu scheduling functionality
 - **Admin Interface**: Comprehensive administrative controls
+- **OAuth 2.0 Authentication**: Secure login with Microsoft Entra ID integration
 - **RESTful API**: Programmatic access to all features
-- **Security First**: Built-in security measures including Argon2 password hashing
+- **Security First**: Built-in security measures including Argon2 password hashing and PKCE
 
 ## 📋 Table of Contents
 
@@ -65,6 +66,39 @@ A modern, secure, and efficient web application for managing dining operations, 
 | `PRODUCTION`          | Enable production mode with enhanced security                              | Not set (development mode)       |
 | `SESSION_SECRET`      | Secret key for session encryption (required in production)                 | Development key (insecure)       |
 | `CORS_ALLOWED_ORIGINS`| Comma-separated allowed origins when in production mode                     | `http://localhost:8080,http://127.0.0.1:8080` |
+
+### OAuth 2.0 Authentication
+
+The application supports OAuth 2.0 authentication with Microsoft Entra ID (Azure AD) for enhanced security. OAuth users are validated against an allowlist of email addresses.
+
+#### Configuration
+
+Create a `data/oauth_config.json` file with the following structure:
+
+```json
+{
+  "client_id": "your-azure-app-client-id",
+  "client_secret": "your-azure-app-client-secret",
+  "issuer_url": "https://login.microsoftonline.com/your-tenant-id/v2.0",
+  "redirect_url": "https://your-domain.com/auth_callback",
+  "allowed_emails": ["admin@yourdomain.com", "user@yourdomain.com"],
+  "enabled": true
+}
+```
+
+#### Microsoft Entra ID Setup
+
+1. Register an application in the [Azure Portal](https://portal.azure.com/)
+2. Add `https://your-domain.com/auth_callback` as a redirect URI
+3. Note the Application (client) ID and create a client secret
+4. Use your tenant ID in the issuer URL
+
+#### Features
+
+- **PKCE Support**: Enhanced security for public clients
+- **Email Whitelist**: Only specified emails can access admin functions
+- **Fallback Authentication**: Username/password login remains available
+- **Session Management**: OAuth tokens stored securely in sessions
 
 ### Default Admin Account
 
