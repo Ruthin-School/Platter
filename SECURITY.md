@@ -8,6 +8,9 @@ The application implements multiple layers of security:
 
 ### Authentication & Authorization
 - **Argon2 Password Hashing**: Industry-standard password security with salt
+- **OAuth 2.0 Support**: Secure authentication with Microsoft Entra ID using OpenID Connect
+- **PKCE Protection**: Proof Key for Code Exchange for enhanced OAuth security
+- **Email Whitelist**: OAuth users validated against approved email addresses
 - **Role-based Access Control**: Admin-only access to sensitive operations
 - **Secure Session Management**: Session encryption and proper lifecycle management
 
@@ -81,6 +84,7 @@ If you discover a security vulnerability in this project, please contact the mai
 - [ ] Configure `CORS_ALLOWED_ORIGINS` to only allow trusted domains
 - [ ] Ensure the application serves over HTTPS
 - [ ] Change the default admin credentials before going live
+- [ ] Configure OAuth settings with proper client credentials and email whitelist
 - [ ] Set `PRODUCTION=true` to enable production security settings
 - [ ] Configure proper logging and monitoring
 - [ ] Ensure the application runs with minimal permissions
