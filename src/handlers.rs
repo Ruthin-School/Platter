@@ -1449,3 +1449,118 @@ pub async fn not_found_page(
 
     Ok(HttpResponse::NotFound().body(s))
 }
+
+// Menu Export Handler
+pub async fn export_menu_items(
+    storage: web::Data<JsonStorage>,
+    session: actix_session::Session,
+) -> Result<impl Responder, ApiErrorType> {
+    // Check authentication
+    let _user_id = require_auth(&session)
+        .await
+        .map_err(|e| ApiErrorType::Validation(format!("Authentication required: {}", e)))?;
+
+    // Get all menu items
+    let menu_items = storage.get_menu_items().map_err(ApiErrorType::Storage)?;
+    
+    // Serialize to pretty JSON
+    let json_data = serde_json::to_string_pretty(&menu_items)
+        .map_err(|e| ApiErrorType::Validation(format!("JSON serialization error: {}", e)))?;
+    
+    // Return JSON with download headers
+    Ok(HttpResponse::Ok()
+        .content_type("application/json")
+        .insert_header(("Content-Disposition", "attachment; filename=\"menu_items_export.json\""))
+        .body(json_data))
+}
+
+// Menu Import Handler
+#[derive(Debug, Deserialize)]
+pub struct ImportMenuItemsRequest {
+    pub items: Vec<MenuItem>,
+}
+
+pub async fn import_menu_items(
+    storage: web::Data<JsonStorage>,
+    session: actix_session::Session,
+    import_data: web::Json<ImportMenuItemsRequest>,
+) -> Result<impl Responder, ApiErrorType> {
+    // Check authentication
+    let _user_id = require_auth(&session)
+        .await
+        .map_err(|e| ApiErrorType::Validation(format!("Authentication required: {}", e)))?;
+
+    // Validate imported items
+    if import_data.items.is_empty() {
+        return Err(ApiErrorType::Validation("No items to import".to_string()));
+    }
+
+    // Validate maximum items limit (prevent excessive imports)
+    if import_data.items.len() > 1000 {
+        return Err(ApiErrorType::Validation(
+            "Import limit exceeded: maximum 1000 items allowed".to_string(),
+        ));
+    }
+
+    // Track import statistics
+    let mut imported_count = 0;
+    let mut updated_count = 0;
+    let mut skipped_count = 0;
+    let mut errors = Vec::new();
+
+    // Get existing menu items
+    let existing_items = storage.get_menu_items().map_err(ApiErrorType::Storage)?;
+    
+    for (index, item) in import_data.items.iter().enumerate() {
+        // Validate item fields
+        if item.name.trim().is_empty() {
+            errors.push(format!("Item at index {}: name cannot be empty", index));
+            skipped_count += 1;
+            continue;
+        }
+
+        if item.description.trim().is_empty() {
+            errors.push(format!("Item '{}': description cannot be empty", item.name));
+            skipped_count += 1;
+            continue;
+        }
+
+        // Validate name length
+        if item.name.len() > 100 {
+            errors.push(format!("Item '{}': name exceeds 100 characters", item.name));
+            skipped_count += 1;
+            continue;
+        }
+
+        // Check if item already exists by ID
+        if let Some(_existing) = existing_items.iter().find(|i| i.id == item.id) {
+            // Update existing item
+            match storage.update_menu_item(item.id, item.clone()).map_err(ApiErrorType::from) {
+                Ok(_) => updated_count += 1,
+                Err(e) => {
+                    errors.push(format!("Failed to update item '{}': {}", item.name, e));
+                    skipped_count += 1;
+                }
+            }
+        } else {
+            // Add new item
+            match storage.add_menu_item(item.clone()).map_err(ApiErrorType::from) {
+                Ok(_) => imported_count += 1,
+                Err(e) => {
+                    errors.push(format!("Failed to import item '{}': {}", item.name, e));
+                    skipped_count += 1;
+                }
+            }
+        }
+    }
+
+    // Return import summary
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "status": if errors.is_empty() { "success" } else { "partial_success" },
+        "imported": imported_count,
+        "updated": updated_count,
+        "skipped": skipped_count,
+        "errors": errors,
+        "total_processed": import_data.items.len()
+    })))
+}

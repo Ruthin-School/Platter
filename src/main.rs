@@ -190,6 +190,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 "/api/items/reload",
                 web::post().to(handlers::reload_menu_items),
             )
+            .route(
+                "/api/items/export",
+                web::get().to(handlers::export_menu_items),
+            )
+            .route(
+                "/api/items/import",
+                web::post().to(handlers::import_menu_items),
+            )
             // Notices routes
             .route("/api/notices", web::get().to(handlers::list_notices))
             .route("/api/notices", web::post().to(handlers::create_notice))
