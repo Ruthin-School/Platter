@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::auth::require_auth;
 use crate::error_handler::{AppError, ResultExt};
 use crate::storage::{
-    JsonStorage, MenuItem, MenuPreset, MenuSchedule, Notice, OAuthConfig, ScheduleRecurrence, ScheduleStatus,
+    JsonStorage, MenuItem, MenuPreset, MenuSchedule, Notice, ScheduleRecurrence, ScheduleStatus,
     StorageError,
 };
 use actix_web_openidconnect::openid_middleware::Authenticated;
@@ -54,6 +54,11 @@ impl actix_web::ResponseError for ApiErrorType {
             error: error_message,
         })
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct OAuthCallbackQuery {
+    pub state: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -365,32 +370,49 @@ pub async fn login_page(
 }
 
 // OAuth login handler - redirects to Microsoft Entra ID
-pub async fn oauth_login(storage: web::Data<JsonStorage>) -> Result<HttpResponse, ApiErrorType> {
+pub async fn oauth_login(
+    storage: web::Data<JsonStorage>,
+    session: actix_session::Session,
+) -> Result<HttpResponse, ApiErrorType> {
     let oauth_config = storage.get_oauth_config().map_err(ApiErrorType::Storage)?;
 
     if let Some(config) = oauth_config {
         if config.enabled {
+            // Extract base URL from issuer (e.g., "https://login.microsoftonline.com/{tenant-id}")
+            let issuer_base = config.issuer_url.trim_end_matches("/v2.0").trim_end_matches("/");
+            let auth_url_str = format!("{}/oauth2/v2.0/authorize", issuer_base);
+            let token_url_str = format!("{}/oauth2/v2.0/token", issuer_base);
+
+            log::info!("Using tenant-specific OAuth URLs - Auth: {}, Token: {}", auth_url_str, token_url_str);
+
             // Create OAuth2 client
             let client = oauth2::basic::BasicClient::new(
                 oauth2::ClientId::new(config.client_id.clone()),
             )
             .set_client_secret(oauth2::ClientSecret::new(config.client_secret.clone()))
-            .set_auth_uri(oauth2::AuthUrl::new("https://login.microsoftonline.com/common/oauth2/v2.0/authorize".to_string())
+            .set_auth_uri(oauth2::AuthUrl::new(auth_url_str)
                 .map_err(|e| ApiErrorType::Validation(format!("Invalid auth URL: {}", e)))?)
-            .set_token_uri(oauth2::TokenUrl::new("https://login.microsoftonline.com/common/oauth2/v2.0/token".to_string())
+            .set_token_uri(oauth2::TokenUrl::new(token_url_str)
                 .map_err(|e| ApiErrorType::Validation(format!("Invalid token URL: {}", e)))?)
             .set_redirect_uri(
                 oauth2::RedirectUrl::new(config.redirect_url.clone())
                     .map_err(|e| ApiErrorType::Validation(format!("Invalid redirect URL: {}", e)))?,
             );
 
-            // Generate authorization URL
-            let (auth_url, _csrf_token) = client
+            // Generate authorization URL with CSRF token
+            let (auth_url, csrf_token) = client
                 .authorize_url(oauth2::CsrfToken::new_random)
                 .add_scope(oauth2::Scope::new("openid".to_string()))
                 .add_scope(oauth2::Scope::new("email".to_string()))
                 .add_scope(oauth2::Scope::new("profile".to_string()))
                 .url();
+
+            // Store CSRF token in session for validation during callback
+            session.insert("oauth_csrf", csrf_token.secret().to_string()).map_err(|e| {
+                ApiErrorType::Validation(format!("Session error: {}", e))
+            })?;
+
+            log::info!("OAuth login initiated, CSRF token stored in session");
 
             // Redirect to Microsoft Entra ID
             Ok(HttpResponse::Found()
@@ -411,11 +433,49 @@ pub async fn oauth_login(storage: web::Data<JsonStorage>) -> Result<HttpResponse
 // OAuth callback handler - validates user and creates session
 pub async fn oauth_callback(
     auth_data: Authenticated,
+    query: web::Query<OAuthCallbackQuery>,
     storage: web::Data<JsonStorage>,
     session: actix_session::Session,
 ) -> Result<HttpResponse, ApiErrorType> {
+    // Validate CSRF token
+    let stored_csrf_token = session.get::<String>("oauth_csrf")
+        .map_err(|e| ApiErrorType::Validation(format!("Session error: {}", e)))?
+        .ok_or_else(|| {
+            log::error!("CSRF validation failed: no token in session");
+            ApiErrorType::Validation("CSRF token not found in session".to_string())
+        })?;
+
+    if stored_csrf_token != query.state {
+        log::error!("CSRF validation failed: token mismatch");
+        return Err(ApiErrorType::Validation("CSRF token validation failed".to_string()));
+    }
+
+    // Clear CSRF token from session after successful validation
+    session.remove("oauth_csrf");
+    log::info!("CSRF token validated successfully");
+
     // Get OAuth config
     let oauth_config = storage.get_oauth_config().map_err(ApiErrorType::Storage)?;
+
+    // Additional token validation and security logging
+    // Note: The actix_web_openidconnect middleware validates the ID token internally (exp, iss, aud)
+    // before fetching userinfo. We add additional validation layers here for defense in depth.
+    
+    // Log authentication event for security monitoring
+    log::info!("OAuth authentication attempt - validating user claims");
+    
+    // Validate that we have user information claims
+    let user_claims = &auth_data.access;
+    
+    // Validate that essential user information is present
+    let subject = user_claims.subject();
+    if subject.is_empty() {
+        log::warn!("Token validation failed: missing or empty subject identifier");
+        return Ok(HttpResponse::Forbidden().json(ApiError {
+            error: "Invalid token: missing user identifier".to_string(),
+        }));
+    }
+    log::debug!("Token subject validated: {}", subject.as_str());
 
     if let Some(config) = oauth_config {
         if !config.enabled {
@@ -424,34 +484,54 @@ pub async fn oauth_callback(
             }));
         }
 
-        // Get user email from access token claims
+        // Get user email from userinfo claims
         let email_claim = auth_data.access.email()
-            .ok_or_else(|| ApiErrorType::Validation("Email not found in access token".to_string()))?;
+            .ok_or_else(|| {
+                log::warn!("Token validation failed: email claim not found in userinfo");
+                ApiErrorType::Validation("Email not found in token claims".to_string())
+            })?;
         let email = email_claim.to_string();
+        
+        // Validate email format (basic check)
+        if email.is_empty() || !email.contains('@') {
+            log::warn!("Token validation failed: invalid email format: {}", email);
+            return Ok(HttpResponse::Forbidden().json(ApiError {
+                error: "Invalid email format in token".to_string(),
+            }));
+        }
+        log::debug!("Token email claim validated: {}", email);
 
-        // Check if email is in allowed list
-        if !config.allowed_emails.contains(&email.to_lowercase()) {
+        // Validate email against allowed list
+        let email_lower = email.to_lowercase();
+        if !config.allowed_emails.contains(&email_lower) {
+            log::warn!("Authorization failed: email {} not in allowed list", email);
             return Ok(HttpResponse::Forbidden().json(ApiError {
                 error: "Email not authorized for admin access".to_string(),
             }));
         }
+        log::info!("Email authorization successful for: {}", email);
 
-        // Create session for OAuth user
-        session.insert("user_id", uuid::Uuid::new_v4()).map_err(|e| {
+        // All validations passed - create session for OAuth user
+        let user_id = uuid::Uuid::new_v4();
+        session.insert("user_id", user_id).map_err(|e| {
+            log::error!("Failed to create session: {}", e);
             ApiErrorType::Validation(format!("Session error: {}", e))
         })?;
         session.insert("username", email.clone()).map_err(|e| {
+            log::error!("Failed to store username in session: {}", e);
             ApiErrorType::Validation(format!("Session error: {}", e))
         })?;
         session.insert("user_type", "oauth").map_err(|e| {
+            log::error!("Failed to store user type in session: {}", e);
             ApiErrorType::Validation(format!("Session error: {}", e))
         })?;
         session.insert("oauth_provider", "microsoft").map_err(|e| {
+            log::error!("Failed to store OAuth provider in session: {}", e);
             ApiErrorType::Validation(format!("Session error: {}", e))
         })?;
         session.renew();
 
-        log::info!("OAuth login successful for user: {}", email);
+        log::info!("OAuth authentication and session creation successful for user: {} (session_id: {})", email, user_id);
 
         // Redirect to admin dashboard
         Ok(HttpResponse::SeeOther()
