@@ -1154,8 +1154,34 @@ pub async fn menu_page(
 
     // Get menu items and filter for available ones
     let menu_items = storage.get_menu_items().map_err(ApiErrorType::Storage)?;
-    let available_menu_items: Vec<&MenuItem> =
+    let mut available_menu_items: Vec<&MenuItem> =
         menu_items.iter().filter(|item| item.is_available).collect();
+
+    // Sort menu items by category to ensure items of the same category are grouped together
+    // This prevents duplicate category sections in the template
+    available_menu_items.sort_by(|a, b| {
+        use crate::storage::MenuCategory;
+        // Define category order: Mains, Sides, Desserts, Beverages
+        let category_order = |cat: &MenuCategory| match cat {
+            MenuCategory::Mains => 0,
+            MenuCategory::Sides => 1,
+            MenuCategory::Desserts => 2,
+            MenuCategory::Beverages => 3,
+        };
+        category_order(&a.category).cmp(&category_order(&b.category))
+    });
+
+    // DEBUG: Log menu item order and categories to diagnose grouping issue
+    log::info!("=== MENU PAGE DEBUG: Menu items order (after sorting) ===");
+    for (index, item) in available_menu_items.iter().enumerate() {
+        log::info!("  [{}] {:?} - {} (ID: {})",
+            index,
+            item.category,
+            item.name,
+            item.id
+        );
+    }
+    log::info!("=== END MENU DEBUG ===");
 
     // Get notices and filter for active ones
     let notices = storage.get_notices().map_err(ApiErrorType::Storage)?;
