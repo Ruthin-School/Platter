@@ -72,7 +72,12 @@ endblock %} {% block content %}
       <div class="table-actions" style="margin-bottom: var(--spacing-md);">
         <button class="btn btn-primary" id="selectAllBtn" aria-label="Toggle all menu items" type="button">Toggle All</button>
         <button class="btn btn-warning" id="deselectAllBtn" aria-label="Deselect all menu items" type="button">Deselect All</button>
+        <button class="btn btn-secondary" id="exportMenuBtn" aria-label="Export menu items" type="button">Export Menu</button>
+        <button class="btn btn-secondary" id="importMenuBtn" aria-label="Import menu items" type="button">Import Menu</button>
       </div>
+      
+      <!-- Hidden file input for import -->
+      <input type="file" id="importFileInput" accept=".json" style="display: none;" />
       <table class="items-table">
         <thead>
           <tr>
@@ -787,6 +792,169 @@ endblock %} {% block content %}
     }
   }
 
+  // Export menu items
+  async function exportMenuItems() {
+    const btn = document.getElementById('exportMenuBtn');
+    const statusMessage = document.getElementById("status-message");
+    
+    try {
+      // Show loading state
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Exporting...';
+      }
+
+      const response = await fetch('/api/items/export', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        // Get the filename from Content-Disposition header or use default
+        const contentDisposition = response.headers.get('Content-Disposition');
+        const filename = contentDisposition
+          ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+          : 'menu_items_export.json';
+        
+        // Create blob from response
+        const blob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        // Show success message
+        if (statusMessage) {
+          statusMessage.textContent = 'Menu items exported successfully';
+          statusMessage.className = 'status-message success';
+          statusMessage.style.display = 'block';
+          setTimeout(() => {
+            statusMessage.style.display = 'none';
+          }, 3000);
+        }
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      if (statusMessage) {
+        statusMessage.textContent = `Export failed: ${error.message}`;
+        statusMessage.className = 'status-message error';
+        statusMessage.style.display = 'block';
+        setTimeout(() => {
+          statusMessage.style.display = 'none';
+        }, 3000);
+      } else {
+        alert(`Export failed: ${error.message}`);
+      }
+    } finally {
+      // Reset button state
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Export Menu';
+      }
+    }
+  }
+
+  // Import menu items
+  async function importMenuItems() {
+    const fileInput = document.getElementById('importFileInput');
+    const statusMessage = document.getElementById("status-message");
+    
+    // Trigger file input click
+    fileInput.click();
+    
+    // Handle file selection
+    fileInput.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const btn = document.getElementById('importMenuBtn');
+      
+      try {
+        // Show loading state
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Importing...';
+        }
+
+        // Read file content
+        const fileContent = await file.text();
+        const items = JSON.parse(fileContent);
+        
+        // Validate that it's an array
+        if (!Array.isArray(items)) {
+          throw new Error('Invalid file format: expected an array of menu items');
+        }
+
+        // Send import request
+        const response = await fetch('/api/items/import', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ items }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          
+          // Show detailed success message
+          let message = `Import completed: ${result.imported} new items added`;
+          if (result.updated > 0) {
+            message += `, ${result.updated} items updated`;
+          }
+          if (result.errors && result.errors.length > 0) {
+            message += `. ${result.errors.length} errors occurred.`;
+          }
+          
+          if (statusMessage) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-message success';
+            statusMessage.style.display = 'block';
+            setTimeout(() => {
+              statusMessage.style.display = 'none';
+              location.reload(); // Reload to show imported items
+            }, 3000);
+          } else {
+            alert(message);
+            location.reload();
+          }
+        } else {
+          const error = await response.json();
+          throw new Error(error.error || 'Import failed');
+        }
+      } catch (error) {
+        console.error('Import error:', error);
+        if (statusMessage) {
+          statusMessage.textContent = `Import failed: ${error.message}`;
+          statusMessage.className = 'status-message error';
+          statusMessage.style.display = 'block';
+          setTimeout(() => {
+            statusMessage.style.display = 'none';
+          }, 3000);
+        } else {
+          alert(`Import failed: ${error.message}`);
+        }
+      } finally {
+        // Reset button state and clear file input
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Import Menu';
+        }
+        fileInput.value = '';
+      }
+    };
+  }
+
   // Add event listeners with error handling
   document.addEventListener("DOMContentLoaded", function () {
     const addMenuItemForm = document.getElementById("addMenuItemForm");
@@ -817,6 +985,22 @@ endblock %} {% block content %}
       deselectAllBtn.addEventListener("click", deselectAllItems);
     } else {
       console.error("Deselect all button not found");
+    }
+
+    // Add event listener for export button
+    const exportMenuBtn = document.getElementById("exportMenuBtn");
+    if (exportMenuBtn) {
+      exportMenuBtn.addEventListener("click", exportMenuItems);
+    } else {
+      console.error("Export menu button not found");
+    }
+
+    // Add event listener for import button
+    const importMenuBtn = document.getElementById("importMenuBtn");
+    if (importMenuBtn) {
+      importMenuBtn.addEventListener("click", importMenuItems);
+    } else {
+      console.error("Import menu button not found");
     }
 
     // Add event listeners for availability toggle checkboxes
