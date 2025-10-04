@@ -53,6 +53,66 @@ Resources for developers contributing to the Platter project.
 
 ---
 
+### [🔀 Git Workflow Guide](git-workflow.md)
+
+**What this covers:** Git workflow, versioning, and release tagging
+
+**Topics included:**
+- Semantic versioning standards
+- Creating and managing release tags
+- Branch naming conventions
+- Tag format and best practices
+- Automated tagging scripts
+
+**Reading time:** Approximately 15 minutes
+
+---
+
+### [🛡️ Branch Protection Rules](branch-protection.md)
+
+**What this covers:** GitHub branch protection configuration and enforcement
+
+**Topics included:**
+- Why branch protection is critical
+- Required status checks and their purposes
+- GPG commit signing setup and requirements
+- Merge strategies and when to use each
+- Troubleshooting branch protection issues
+
+**Reading time:** Approximately 15 minutes
+
+---
+
+### [🔀 Merge Strategies Guide](merge-strategies.md)
+
+**What this covers:** Detailed guide to Git merge strategies
+
+**Topics included:**
+- Squash and merge (recommended default)
+- Rebase and merge (for clean commits)
+- Interactive rebase techniques
+- Conflict resolution strategies
+- Best practices for each strategy
+
+**Reading time:** Approximately 20 minutes
+
+---
+
+### [🪝 Git Hooks Guide](git-hooks.md)
+
+**What this covers:** Pre-commit and commit message validation hooks
+
+**Topics included:**
+- Automated code quality checks
+- Commit message format validation
+- Setting up Git hooks locally
+- Customizing hook behavior
+- Troubleshooting hook issues
+
+**Reading time:** Approximately 12 minutes
+
+---
+
 ## 🛠️ Development Tools
 
 ### Recommended Tools for Development
@@ -114,6 +174,10 @@ Find quick links to frequently performed operations:
 - [Run tests](testing.md#running-tests) – Execute test suite
 - [Build for production](setup.md#building-for-production) – Create release builds
 - [Submit a pull request](contributing.md#pull-request-process) – Contribute code
+- [Choose merge strategy](merge-strategies.md#section-6-merge-strategy-decision-framework) – Select the right merge approach
+- [Configure branch protection](branch-protection.md#section-2-configuring-branch-protection) – Set up GitHub protection rules
+- [Set up GPG signing](branch-protection.md#section-4-gpg-commit-signing) – Configure commit signing
+- [Resolve merge conflicts](merge-strategies.md#section-5-conflict-resolution) – Handle Git conflicts
 - [Write documentation](contributing.md#documentation-guidelines) – Document your changes
 
 ---

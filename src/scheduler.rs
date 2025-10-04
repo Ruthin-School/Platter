@@ -24,8 +24,7 @@ impl Eq for ScheduledEvent {}
 
 impl PartialOrd for ScheduledEvent {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        // BinaryHeap is a max-heap, so we reverse the comparison to make it a min-heap
-        other.execution_time.partial_cmp(&self.execution_time)
+        Some(self.cmp(other))
     }
 }
 
@@ -219,11 +218,7 @@ async fn execute_schedule(
     // Set is_available = true for items in the preset
     // Set is_available = false for items not in the preset
     for mut item in menu_items {
-        if preset.menu_item_ids.contains(&item.id) {
-            item.is_available = true;
-        } else {
-            item.is_available = false;
-        }
+        item.is_available = preset.menu_item_ids.contains(&item.id);
         storage.update_menu_item(item.id, item)?;
     }
 
@@ -314,15 +309,11 @@ fn calculate_next_occurrence(
         }
         ScheduleRecurrence::Monthly => {
             // For monthly, we add one month
-            if let Some(next_month) = schedule
+            schedule
                 .start_time
                 .date_naive()
                 .checked_add_months(chrono::Months::new(1))
-            {
-                Some(next_month.and_time(schedule.start_time.time()).and_utc())
-            } else {
-                None
-            }
+                .map(|next_month| next_month.and_time(schedule.start_time.time()).and_utc())
         }
         ScheduleRecurrence::Custom => None, // Custom recurrence not implemented yet
     }
@@ -568,14 +559,12 @@ mod tests {
         assert_eq!(first_popped.execution_time, now + ChronoDuration::hours(1));
     }
 
-
-
     #[tokio::test]
     async fn test_scheduler_conflict_detection() {
         use crate::scheduler::has_schedule_conflict;
-        
+
         let now = Utc::now();
-        
+
         // Create first schedule
         let schedule1 = MenuSchedule {
             id: Uuid::new_v4(),
@@ -590,7 +579,7 @@ mod tests {
             created_at: now,
             updated_at: now,
         };
-        
+
         // Create overlapping schedule
         let schedule2 = MenuSchedule {
             id: Uuid::new_v4(),
@@ -605,7 +594,7 @@ mod tests {
             created_at: now,
             updated_at: now,
         };
-        
+
         // Create non-overlapping schedule
         let schedule3 = MenuSchedule {
             id: Uuid::new_v4(),
@@ -620,18 +609,18 @@ mod tests {
             created_at: now,
             updated_at: now,
         };
-        
+
         // Test conflict detection
         let schedules_with_conflict = vec![schedule2.clone()];
         let conflict_result = has_schedule_conflict(&schedule1, &schedules_with_conflict);
         assert!(conflict_result.is_some());
         assert_eq!(conflict_result.unwrap().id, schedule2.id);
-        
+
         // Test no conflict
         let schedules_no_conflict = vec![schedule3];
         let no_conflict_result = has_schedule_conflict(&schedule1, &schedules_no_conflict);
         assert!(no_conflict_result.is_none());
-        
+
         // Test same ID is ignored
         let same_schedule = vec![schedule1.clone()];
         let same_id_result = has_schedule_conflict(&schedule1, &same_schedule);
@@ -641,9 +630,9 @@ mod tests {
     #[tokio::test]
     async fn test_recurring_schedule_calculation() {
         use crate::scheduler::calculate_next_occurrence;
-        
+
         let now = Utc::now();
-        
+
         // Test daily recurrence
         let daily_schedule = MenuSchedule {
             id: Uuid::new_v4(),
@@ -658,10 +647,10 @@ mod tests {
             created_at: now,
             updated_at: now,
         };
-        
+
         let next_daily = calculate_next_occurrence(&daily_schedule, now).unwrap();
         assert_eq!(next_daily, now + ChronoDuration::days(1));
-        
+
         // Test weekly recurrence
         let weekly_schedule = MenuSchedule {
             id: Uuid::new_v4(),
@@ -676,15 +665,15 @@ mod tests {
             created_at: now,
             updated_at: now,
         };
-        
+
         let next_weekly = calculate_next_occurrence(&weekly_schedule, now).unwrap();
         assert_eq!(next_weekly, now + ChronoDuration::weeks(1));
-        
+
         // Test monthly recurrence (using a date that allows for safe addition)
         let month_start = chrono::DateTime::parse_from_rfc3339("2023-01-15T10:00:00Z")
             .unwrap()
             .with_timezone(&Utc);
-        
+
         let monthly_schedule = MenuSchedule {
             id: Uuid::new_v4(),
             preset_id: Uuid::new_v4(),
@@ -698,13 +687,13 @@ mod tests {
             created_at: now,
             updated_at: now,
         };
-        
+
         let next_monthly = calculate_next_occurrence(&monthly_schedule, now).unwrap();
         let expected_monthly = chrono::DateTime::parse_from_rfc3339("2023-02-15T10:00:00Z")
             .unwrap()
             .with_timezone(&Utc);
         assert_eq!(next_monthly, expected_monthly);
-        
+
         // Test custom recurrence (should return None)
         let custom_schedule = MenuSchedule {
             id: Uuid::new_v4(),
@@ -719,7 +708,7 @@ mod tests {
             created_at: now,
             updated_at: now,
         };
-        
+
         let next_custom = calculate_next_occurrence(&custom_schedule, now);
         assert!(next_custom.is_none());
     }

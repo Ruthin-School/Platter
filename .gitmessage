@@ -1,0 +1,94 @@
+# <type>(<scope>): <description>
+#
+# [optional body]
+#
+# [optional footer(s)]
+
+# ────────────────────────────────────────────────────────────────────────────
+# CONVENTIONAL COMMITS GUIDE
+# ────────────────────────────────────────────────────────────────────────────
+#
+# Format: type(scope): description
+#
+# ─────────── TYPES ───────────
+# feat:     A new feature
+# fix:      A bug fix
+# docs:     Documentation only changes
+# style:    Changes that don't affect code meaning (white-space, formatting)
+# refactor: Code change that neither fixes a bug nor adds a feature
+# perf:     Code change that improves performance
+# test:     Adding missing tests or correcting existing tests
+# chore:    Changes to build process or auxiliary tools
+# ci:       Changes to CI configuration files and scripts
+# build:    Changes that affect the build system or dependencies
+# revert:   Reverts a previous commit
+#
+# ─────────── SCOPE ───────────
+# Optional - can be anything specifying the place of the commit change.
+# Examples: api, ui, auth, db, scheduler, menu, admin, accessibility
+#
+# ─────────── DESCRIPTION ───────────
+# Use imperative, present tense: "add" not "added" nor "adds"
+# Start with lowercase letter
+# No period (.) at the end
+# Keep under 72 characters
+#
+# ─────────── BODY ───────────
+# Optional - provide additional context about the code changes.
+# Use imperative, present tense
+# Wrap at 72 characters
+# Separate from subject with blank line
+#
+# ─────────── FOOTER ───────────
+# Optional - reference issues or breaking changes
+# Breaking Changes: start with "BREAKING CHANGE:" 
+# Issues: "Fixes #123" or "Closes #123"
+#
+# ────────────────────────────────────────────────────────────────────────────
+# EXAMPLES
+# ────────────────────────────────────────────────────────────────────────────
+#
+# feat(auth): add OAuth2 authentication support
+#
+# fix(scheduler): resolve memory leak in job processing
+#
+# docs(readme): update installation instructions
+#
+# style(menu): format menu display code
+#
+# refactor(api): simplify error handling logic
+#
+# perf(db): optimize query performance for menu items
+#
+# test(auth): add unit tests for login validation
+#
+# chore(deps): update actix-web to version 4.4.0
+#
+# ci(github): add automated security scanning
+#
+# ────────────────────────────────────────────────────────────────────────────
+# EXAMPLE WITH BODY AND FOOTER
+# ────────────────────────────────────────────────────────────────────────────
+#
+# feat(api): add pagination support for menu items
+#
+# Implement pagination to improve performance when loading large menus.
+# Users can now specify page size and page number in API requests.
+#
+# Closes #45
+#
+# ────────────────────────────────────────────────────────────────────────────
+# BREAKING CHANGE EXAMPLE
+# ────────────────────────────────────────────────────────────────────────────
+#
+# feat(api)!: change authentication endpoint response format
+#
+# Update the /api/auth/login endpoint to return a structured response
+# with separate fields for token, expiry, and user details.
+#
+# BREAKING CHANGE: The authentication endpoint now returns a different
+# response structure. Clients must update to parse the new format.
+#
+# Closes #78
+#
+# ────────────────────────────────────────────────────────────────────────────

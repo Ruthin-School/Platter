@@ -565,6 +565,8 @@ After addressing feedback:
 | **Merge commit** | Multiple logical commits | All commits preserved |
 | **Rebase and merge** | Clean linear history desired | Commits rebased onto main |
 
+> 📘 **Reference:** For detailed merge strategy guidance, see the [Merge Strategies Guide](merge-strategies.md)
+
 **After merge:**
 
 1. Delete your feature branch (GitHub offers this option)
@@ -1006,6 +1008,10 @@ Complete these tasks in sequence:
 Access these resources for additional information:
 
 - **[Development Setup Guide](setup.md)** – Set up your development environment
+- **[Branch Protection Rules](branch-protection.md)** – GitHub branch protection configuration
+- **[Merge Strategies Guide](merge-strategies.md)** – Detailed merge strategy documentation
+- **[Git Workflow Guide](git-workflow.md)** – Git workflow and release tagging
+- **[Git Hooks Guide](git-hooks.md)** – Pre-commit and commit-msg hooks
 - **[Testing Guide](testing.md)** – Testing practices and procedures
 - **[API Reference](../api/reference.md)** – API documentation for development
 - **[Design Documentation](../architecture/design.md)** – Architecture overview and patterns

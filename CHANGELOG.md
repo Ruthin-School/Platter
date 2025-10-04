@@ -7,8 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2025-10-04
+
+### Added
+- Compile-time WCAG 2.1 Level AA accessibility validation system
+- ARIA role and attribute validation
+- Color contrast ratio checking (4.5:1 normal text, 3:1 large text)
+- Semantic HTML structure validation
+- Form label association validation
+- Template analyzer for heading hierarchy
+- Standalone a11y-check CLI tool for manual validation
+- Comprehensive CI/CD workflows (tests, security, coverage, accessibility)
+- Git hooks infrastructure with pre-commit and commit-msg validation
+- Detailed development workflow documentation
+- Branch protection and merge strategies guides
+- Build optimization guide with feature flag documentation
+- Git workflow guide with SemVer and release tagging
+- Security audit configuration with cargo-deny
+
 ### Changed
-- Project renamed from \"Dining Hall Dashboard\" to \"Platter\"
+- Improved warning color contrast from 4.03:1 to 5.38:1 for WCAG AA compliance
+- Refactored code to pass all clippy warnings with strict linting
+- Applied consistent code formatting across entire codebase
+- Enhanced button text detection in accessibility validator
+- Updated documentation structure with comprehensive navigation
+
+### Fixed
+- Button text detection logic in template analyzer
+- Unused imports in accessibility validation tests
+- Clippy warnings for collapsible if statements
+- Redundant closures in error handling
+- Dead code warnings with appropriate annotations
+
+### Security
+- Documented RUSTSEC-2023-0071 (RSA Marvin Attack) exception in deny.toml
+- Added comprehensive security audit workflows
+- Implemented strict commit signing requirements
+- Enhanced branch protection documentation
 
 ## [0.4.0] - 2025-09-28
 

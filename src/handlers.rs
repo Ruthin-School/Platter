@@ -10,6 +10,7 @@ use crate::storage::{
     JsonStorage, MenuItem, MenuPreset, MenuSchedule, Notice, ScheduleRecurrence, ScheduleStatus,
     StorageError,
 };
+#[cfg(feature = "oauth")]
 use actix_web_openidconnect::openid_middleware::Authenticated;
 
 #[derive(Debug, Serialize)]
@@ -30,9 +31,9 @@ pub enum ApiErrorType {
 impl From<AppError> for ApiErrorType {
     fn from(app_error: AppError) -> Self {
         match app_error {
-            AppError::Storage(msg) => ApiErrorType::Storage(StorageError::Io(std::io::Error::other(
-                msg,
-            ))),
+            AppError::Storage(msg) => {
+                ApiErrorType::Storage(StorageError::Io(std::io::Error::other(msg)))
+            }
             AppError::Auth(msg) => ApiErrorType::Validation(format!("Auth error: {}", msg)),
             AppError::Validation(msg) => ApiErrorType::Validation(msg),
             AppError::NotFound(msg) => ApiErrorType::NotFound(msg),
@@ -355,10 +356,10 @@ pub async fn login_page(
 
     // Prepare context for template
     let mut context = tera::Context::new();
-    if let Some(config) = oauth_config {
-        if config.enabled {
-            context.insert("oauth_enabled", &true);
-        }
+    if let Some(config) = oauth_config
+        && config.enabled
+    {
+        context.insert("oauth_enabled", &true);
     }
 
     // If not logged in, render the login page
@@ -370,6 +371,7 @@ pub async fn login_page(
 }
 
 // OAuth login handler - redirects to Microsoft Entra ID
+#[cfg(feature = "oauth")]
 pub async fn oauth_login(
     storage: web::Data<JsonStorage>,
     session: actix_session::Session,
@@ -379,25 +381,34 @@ pub async fn oauth_login(
     if let Some(config) = oauth_config {
         if config.enabled {
             // Extract base URL from issuer (e.g., "https://login.microsoftonline.com/{tenant-id}")
-            let issuer_base = config.issuer_url.trim_end_matches("/v2.0").trim_end_matches("/");
+            let issuer_base = config
+                .issuer_url
+                .trim_end_matches("/v2.0")
+                .trim_end_matches("/");
             let auth_url_str = format!("{}/oauth2/v2.0/authorize", issuer_base);
             let token_url_str = format!("{}/oauth2/v2.0/token", issuer_base);
 
-            log::info!("Using tenant-specific OAuth URLs - Auth: {}, Token: {}", auth_url_str, token_url_str);
+            log::info!(
+                "Using tenant-specific OAuth URLs - Auth: {}, Token: {}",
+                auth_url_str,
+                token_url_str
+            );
 
             // Create OAuth2 client
-            let client = oauth2::basic::BasicClient::new(
-                oauth2::ClientId::new(config.client_id.clone()),
-            )
-            .set_client_secret(oauth2::ClientSecret::new(config.client_secret.clone()))
-            .set_auth_uri(oauth2::AuthUrl::new(auth_url_str)
-                .map_err(|e| ApiErrorType::Validation(format!("Invalid auth URL: {}", e)))?)
-            .set_token_uri(oauth2::TokenUrl::new(token_url_str)
-                .map_err(|e| ApiErrorType::Validation(format!("Invalid token URL: {}", e)))?)
-            .set_redirect_uri(
-                oauth2::RedirectUrl::new(config.redirect_url.clone())
-                    .map_err(|e| ApiErrorType::Validation(format!("Invalid redirect URL: {}", e)))?,
-            );
+            let client =
+                oauth2::basic::BasicClient::new(oauth2::ClientId::new(config.client_id.clone()))
+                    .set_client_secret(oauth2::ClientSecret::new(config.client_secret.clone()))
+                    .set_auth_uri(oauth2::AuthUrl::new(auth_url_str).map_err(|e| {
+                        ApiErrorType::Validation(format!("Invalid auth URL: {}", e))
+                    })?)
+                    .set_token_uri(oauth2::TokenUrl::new(token_url_str).map_err(|e| {
+                        ApiErrorType::Validation(format!("Invalid token URL: {}", e))
+                    })?)
+                    .set_redirect_uri(
+                        oauth2::RedirectUrl::new(config.redirect_url.clone()).map_err(|e| {
+                            ApiErrorType::Validation(format!("Invalid redirect URL: {}", e))
+                        })?,
+                    );
 
             // Generate authorization URL with CSRF token
             let (auth_url, csrf_token) = client
@@ -408,9 +419,9 @@ pub async fn oauth_login(
                 .url();
 
             // Store CSRF token in session for validation during callback
-            session.insert("oauth_csrf", csrf_token.secret().to_string()).map_err(|e| {
-                ApiErrorType::Validation(format!("Session error: {}", e))
-            })?;
+            session
+                .insert("oauth_csrf", csrf_token.secret().to_string())
+                .map_err(|e| ApiErrorType::Validation(format!("Session error: {}", e)))?;
 
             log::info!("OAuth login initiated, CSRF token stored in session");
 
@@ -431,6 +442,7 @@ pub async fn oauth_login(
 }
 
 // OAuth callback handler - validates user and creates session
+#[cfg(feature = "oauth")]
 pub async fn oauth_callback(
     auth_data: Authenticated,
     query: web::Query<OAuthCallbackQuery>,
@@ -438,7 +450,8 @@ pub async fn oauth_callback(
     session: actix_session::Session,
 ) -> Result<HttpResponse, ApiErrorType> {
     // Validate CSRF token
-    let stored_csrf_token = session.get::<String>("oauth_csrf")
+    let stored_csrf_token = session
+        .get::<String>("oauth_csrf")
         .map_err(|e| ApiErrorType::Validation(format!("Session error: {}", e)))?
         .ok_or_else(|| {
             log::error!("CSRF validation failed: no token in session");
@@ -447,7 +460,9 @@ pub async fn oauth_callback(
 
     if stored_csrf_token != query.state {
         log::error!("CSRF validation failed: token mismatch");
-        return Err(ApiErrorType::Validation("CSRF token validation failed".to_string()));
+        return Err(ApiErrorType::Validation(
+            "CSRF token validation failed".to_string(),
+        ));
     }
 
     // Clear CSRF token from session after successful validation
@@ -460,13 +475,13 @@ pub async fn oauth_callback(
     // Additional token validation and security logging
     // Note: The actix_web_openidconnect middleware validates the ID token internally (exp, iss, aud)
     // before fetching userinfo. We add additional validation layers here for defense in depth.
-    
+
     // Log authentication event for security monitoring
     log::info!("OAuth authentication attempt - validating user claims");
-    
+
     // Validate that we have user information claims
     let user_claims = &auth_data.access;
-    
+
     // Validate that essential user information is present
     let subject = user_claims.subject();
     if subject.is_empty() {
@@ -485,13 +500,12 @@ pub async fn oauth_callback(
         }
 
         // Get user email from userinfo claims
-        let email_claim = auth_data.access.email()
-            .ok_or_else(|| {
-                log::warn!("Token validation failed: email claim not found in userinfo");
-                ApiErrorType::Validation("Email not found in token claims".to_string())
-            })?;
+        let email_claim = auth_data.access.email().ok_or_else(|| {
+            log::warn!("Token validation failed: email claim not found in userinfo");
+            ApiErrorType::Validation("Email not found in token claims".to_string())
+        })?;
         let email = email_claim.to_string();
-        
+
         // Validate email format (basic check)
         if email.is_empty() || !email.contains('@') {
             log::warn!("Token validation failed: invalid email format: {}", email);
@@ -531,7 +545,11 @@ pub async fn oauth_callback(
         })?;
         session.renew();
 
-        log::info!("OAuth authentication and session creation successful for user: {} (session_id: {})", email, user_id);
+        log::info!(
+            "OAuth authentication and session creation successful for user: {} (session_id: {})",
+            email,
+            user_id
+        );
 
         // Redirect to admin dashboard
         Ok(HttpResponse::SeeOther()
@@ -751,9 +769,7 @@ pub async fn list_menu_schedules(
         .await
         .map_err(|e| AppError::Validation(format!("Authentication required: {}", e)))?;
 
-    let schedules = storage
-        .get_menu_schedules()
-        .map_err(|e| AppError::from(e))?;
+    let schedules = storage.get_menu_schedules().map_err(AppError::from)?;
     Ok(HttpResponse::Ok().json(schedules))
 }
 
@@ -800,9 +816,7 @@ pub async fn create_menu_schedule(
     };
 
     // Check for schedule conflicts
-    let existing_schedules = storage
-        .get_menu_schedules()
-        .map_err(AppError::from)?;
+    let existing_schedules = storage.get_menu_schedules().map_err(AppError::from)?;
 
     // Create a temporary schedule for conflict check
     let temp_schedule = MenuSchedule {
@@ -1035,21 +1049,21 @@ pub async fn validate_schedule(
     }
 
     // Validate name if provided
-    if let Some(name) = &validation_data.name {
-        if name.trim().is_empty() {
-            return Err(AppError::Validation(
-                "Schedule name cannot be empty".to_string(),
-            ));
-        }
+    if let Some(name) = &validation_data.name
+        && name.trim().is_empty()
+    {
+        return Err(AppError::Validation(
+            "Schedule name cannot be empty".to_string(),
+        ));
     }
 
     // Validate description if provided
-    if let Some(description) = &validation_data.description {
-        if description.trim().is_empty() {
-            return Err(AppError::Validation(
-                "Schedule description cannot be empty".to_string(),
-            ));
-        }
+    if let Some(description) = &validation_data.description
+        && description.trim().is_empty()
+    {
+        return Err(AppError::Validation(
+            "Schedule description cannot be empty".to_string(),
+        ));
     }
 
     // Validate recurrence if provided
@@ -1146,10 +1160,10 @@ pub async fn menu_page(
     println!("DEBUG: menu_page handler called");
 
     // Log the referrer for analytics
-    if let Some(referrer) = req.headers().get("Referer") {
-        if let Ok(referrer_str) = referrer.to_str() {
-            println!("DEBUG: Referrer: {}", referrer_str);
-        }
+    if let Some(referrer) = req.headers().get("Referer")
+        && let Ok(referrer_str) = referrer.to_str()
+    {
+        println!("DEBUG: Referrer: {}", referrer_str);
     }
 
     // Get menu items and filter for available ones
@@ -1174,7 +1188,8 @@ pub async fn menu_page(
     // DEBUG: Log menu item order and categories to diagnose grouping issue
     log::info!("=== MENU PAGE DEBUG: Menu items order (after sorting) ===");
     for (index, item) in available_menu_items.iter().enumerate() {
-        log::info!("  [{}] {:?} - {} (ID: {})",
+        log::info!(
+            "  [{}] {:?} - {} (ID: {})",
             index,
             item.category,
             item.name,
@@ -1462,15 +1477,18 @@ pub async fn export_menu_items(
 
     // Get all menu items
     let menu_items = storage.get_menu_items().map_err(ApiErrorType::Storage)?;
-    
+
     // Serialize to pretty JSON
     let json_data = serde_json::to_string_pretty(&menu_items)
         .map_err(|e| ApiErrorType::Validation(format!("JSON serialization error: {}", e)))?;
-    
+
     // Return JSON with download headers
     Ok(HttpResponse::Ok()
         .content_type("application/json")
-        .insert_header(("Content-Disposition", "attachment; filename=\"menu_items_export.json\""))
+        .insert_header((
+            "Content-Disposition",
+            "attachment; filename=\"menu_items_export.json\"",
+        ))
         .body(json_data))
 }
 
@@ -1510,7 +1528,7 @@ pub async fn import_menu_items(
 
     // Get existing menu items
     let existing_items = storage.get_menu_items().map_err(ApiErrorType::Storage)?;
-    
+
     for (index, item) in import_data.items.iter().enumerate() {
         // Validate item fields
         if item.name.trim().is_empty() {
@@ -1535,7 +1553,10 @@ pub async fn import_menu_items(
         // Check if item already exists by ID
         if let Some(_existing) = existing_items.iter().find(|i| i.id == item.id) {
             // Update existing item
-            match storage.update_menu_item(item.id, item.clone()).map_err(ApiErrorType::from) {
+            match storage
+                .update_menu_item(item.id, item.clone())
+                .map_err(ApiErrorType::from)
+            {
                 Ok(_) => updated_count += 1,
                 Err(e) => {
                     errors.push(format!("Failed to update item '{}': {}", item.name, e));
@@ -1544,7 +1565,10 @@ pub async fn import_menu_items(
             }
         } else {
             // Add new item
-            match storage.add_menu_item(item.clone()).map_err(ApiErrorType::from) {
+            match storage
+                .add_menu_item(item.clone())
+                .map_err(ApiErrorType::from)
+            {
                 Ok(_) => imported_count += 1,
                 Err(e) => {
                     errors.push(format!("Failed to import item '{}': {}", item.name, e));

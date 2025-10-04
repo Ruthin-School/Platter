@@ -13,6 +13,7 @@ use actix_session::storage::CookieSessionStore;
 use actix_web::cookie::Key;
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpResponse, HttpServer, web};
+#[cfg(feature = "oauth")]
 use actix_web_openidconnect::ActixWebOpenId;
 use std::error::Error;
 use std::fs;
@@ -35,12 +36,12 @@ fn check_data_directory_permissions() -> Result<(), Box<dyn Error>> {
         }
         Err(e) => {
             if e.kind() == std::io::ErrorKind::PermissionDenied {
-                let error_message = format!(
+                let error_message =
                     "Error: Insufficient permissions to write to the 'data' directory.\n\
                     Please ensure the application has write access to this directory.\n\
                     On Windows, you can grant access by running:\n\
                     icacls \"data\" /grant \"%USERNAME%\":(F)\" /T"
-                );
+                        .to_string();
                 Err(error_message.into())
             } else {
                 Err(e.into())
@@ -77,11 +78,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
     log::debug!("JsonStorage::new() completed successfully");
     log::info!("Storage initialized successfully!");
 
-    // Initialize OAuth if configured
-    let oauth_config = storage.get_oauth_config().map_err(|e| {
-        log::error!("Failed to load OAuth config: {}", e);
-        e
-    }).ok().flatten();
+    // Initialize OAuth if configured (only when oauth feature is enabled)
+    #[cfg(feature = "oauth")]
+    let oauth_config = storage
+        .get_oauth_config()
+        .map_err(|e| {
+            log::error!("Failed to load OAuth config: {}", e);
+            e
+        })
+        .ok()
+        .flatten();
+
+    #[cfg(not(feature = "oauth"))]
+    let _oauth_config: Option<storage::OAuthConfig> = None;
 
     // Wrap storage in web::Data for Actix-web
     log::debug!("Wrapping storage in web::Data");
@@ -104,36 +113,46 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let tera_data = web::Data::new(tera);
     log::debug!("Tera templates initialized");
 
+    #[cfg(feature = "oauth")]
     let openid = if let Some(config) = &oauth_config {
         if config.enabled {
             log::info!("Initializing OAuth with Microsoft Entra ID");
-            Some(ActixWebOpenId::builder(
-                config.client_id.clone(),
-                config.redirect_url.clone(),
-                config.issuer_url.clone(),
+            Some(
+                ActixWebOpenId::builder(
+                    config.client_id.clone(),
+                    config.redirect_url.clone(),
+                    config.issuer_url.clone(),
+                )
+                .client_secret(config.client_secret.clone())
+                .should_auth(|req: &actix_web::dev::ServiceRequest| {
+                    // Only require auth for admin routes, exclude login and static files
+                    req.path().starts_with("/admin")
+                        && !req.path().contains("/login")
+                        && !req.path().starts_with("/static")
+                        && req.method() != actix_web::http::Method::OPTIONS
+                })
+                .scopes(vec![
+                    "openid".to_string(),
+                    "email".to_string(),
+                    "profile".to_string(),
+                ])
+                .use_pkce(true)
+                .build_and_init()
+                .await
+                .map_err(|e| {
+                    log::error!("Failed to initialize OAuth: {}", e);
+                    e
+                })?,
             )
-            .client_secret(config.client_secret.clone())
-            .should_auth(|req: &actix_web::dev::ServiceRequest| {
-                // Only require auth for admin routes, exclude login and static files
-                req.path().starts_with("/admin") &&
-                !req.path().contains("/login") &&
-                !req.path().starts_with("/static") &&
-                req.method() != actix_web::http::Method::OPTIONS
-            })
-            .scopes(vec!["openid".to_string(), "email".to_string(), "profile".to_string()])
-            .use_pkce(true)
-            .build_and_init()
-            .await
-            .map_err(|e| {
-                log::error!("Failed to initialize OAuth: {}", e);
-                e
-            })?)
         } else {
             None
         }
     } else {
         None
     };
+
+    #[cfg(not(feature = "oauth"))]
+    let openid: Option<()> = None;
 
     // Create session key (in production, use a proper persistent secret key)
     // For development, use a fixed key to maintain sessions across restarts
@@ -149,7 +168,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     log::debug!("About to configure HttpServer");
     log::info!("Starting Actix-web server on http://localhost:8080");
 
-    let openid_clone = openid.clone();
+    let _openid_clone = openid.clone();
     HttpServer::new(move || {
         log::debug!("Inside HttpServer closure");
 
@@ -175,11 +194,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .supports_credentials(),
             );
 
-        // Add OAuth routes (middleware handled by handlers)
-        app.route("/oauth/login", web::get().to(handlers::oauth_login))
-            .route("/auth_callback", web::get().to(handlers::oauth_callback))
-            // Menu items routes
-            .route("/api/items", web::get().to(handlers::list_menu_items))
+        // Add OAuth routes (middleware handled by handlers) - only if oauth feature enabled
+        #[cfg(feature = "oauth")]
+        let app = app
+            .route("/oauth/login", web::get().to(handlers::oauth_login))
+            .route("/auth_callback", web::get().to(handlers::oauth_callback));
+
+        // Menu items routes
+        app.route("/api/items", web::get().to(handlers::list_menu_items))
             .route("/api/items", web::post().to(handlers::create_menu_item))
             .route("/api/items/{id}", web::put().to(handlers::update_menu_item))
             .route(

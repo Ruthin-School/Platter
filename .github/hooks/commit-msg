@@ -1,0 +1,104 @@
+#!/bin/sh
+#
+# Git commit-msg hook for validating Conventional Commits format
+# This hook is installed by scripts/setup-hooks.sh
+#
+# Conventional Commits format:
+#   type(scope): description
+#
+# Valid types: feat, fix, docs, style, refactor, perf, test, chore, ci, build, revert
+# Scope is optional
+# Description must be lowercase and present
+
+# Get the commit message file
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Colors for output
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Ignore merge commits
+if echo "$COMMIT_MSG" | grep -qE "^Merge (branch|remote-tracking branch)"; then
+    exit 0
+fi
+
+# Ignore revert commits (they follow a specific format)
+if echo "$COMMIT_MSG" | grep -qE "^Revert \""; then
+    exit 0
+fi
+
+# Define valid types
+VALID_TYPES="feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert"
+
+# Conventional Commits regex pattern:
+# - type: one of the valid types
+# - scope: optional, alphanumeric with hyphens/underscores
+# - description: required, should start with lowercase
+PATTERN="^($VALID_TYPES)(\([a-z0-9_-]+\))?: [a-z].+"
+
+# Check if commit message matches pattern
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+    echo "${RED}❌ ERROR: Invalid commit message format${NC}" >&2
+    echo "" >&2
+    echo "Your commit message:" >&2
+    echo "${YELLOW}$COMMIT_MSG${NC}" >&2
+    echo "" >&2
+    echo "Valid format: ${GREEN}type(scope): description${NC}" >&2
+    echo "" >&2
+    echo "Valid types:" >&2
+    echo "  ${GREEN}feat${NC}:     A new feature" >&2
+    echo "  ${GREEN}fix${NC}:      A bug fix" >&2
+    echo "  ${GREEN}docs${NC}:     Documentation changes" >&2
+    echo "  ${GREEN}style${NC}:    Code style changes (formatting, semicolons, etc.)" >&2
+    echo "  ${GREEN}refactor${NC}: Code refactoring" >&2
+    echo "  ${GREEN}perf${NC}:     Performance improvements" >&2
+    echo "  ${GREEN}test${NC}:     Adding or updating tests" >&2
+    echo "  ${GREEN}chore${NC}:    Maintenance tasks" >&2
+    echo "  ${GREEN}ci${NC}:       CI/CD changes" >&2
+    echo "  ${GREEN}build${NC}:    Build system changes" >&2
+    echo "  ${GREEN}revert${NC}:   Revert a previous commit" >&2
+    echo "" >&2
+    echo "Examples:" >&2
+    echo "  ${GREEN}feat(api): add user authentication endpoint${NC}" >&2
+    echo "  ${GREEN}fix: resolve memory leak in scheduler${NC}" >&2
+    echo "  ${GREEN}docs(readme): update installation instructions${NC}" >&2
+    echo "" >&2
+    echo "Rules:" >&2
+    echo "  • Type is required and must be one of the types above" >&2
+    echo "  • Scope is optional and should be in parentheses" >&2
+    echo "  • Description must start with lowercase letter" >&2
+    echo "  • Use present tense (e.g., 'add' not 'added')" >&2
+    echo "" >&2
+    echo "To bypass this check (not recommended):" >&2
+    echo "  ${YELLOW}git commit --no-verify${NC}" >&2
+    echo "" >&2
+    exit 1
+fi
+
+# Additional validation: check description length
+DESCRIPTION=$(echo "$COMMIT_MSG" | head -n 1 | sed -E "s/^($VALID_TYPES)(\([a-z0-9_-]+\))?: //")
+DESC_LENGTH=${#DESCRIPTION}
+
+if [ "$DESC_LENGTH" -lt 10 ]; then
+    echo "${RED}❌ ERROR: Commit description too short${NC}" >&2
+    echo "" >&2
+    echo "Your description: ${YELLOW}$DESCRIPTION${NC} (${DESC_LENGTH} characters)" >&2
+    echo "Minimum length: 10 characters" >&2
+    echo "" >&2
+    echo "Please provide a more descriptive commit message." >&2
+    echo "" >&2
+    exit 1
+fi
+
+if [ "$DESC_LENGTH" -gt 72 ]; then
+    echo "${YELLOW}⚠️  WARNING: Commit description is long (${DESC_LENGTH} characters)${NC}" >&2
+    echo "Consider keeping it under 72 characters for better readability." >&2
+    echo "" >&2
+fi
+
+# Success
+echo "${GREEN}✓${NC} Commit message format is valid" >&2
+exit 0

@@ -1,7 +1,8 @@
 # 📋 Platter
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/Ruthin-School/Platter/actions)
-[![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)](Cargo.toml)
+[![CI](https://github.com/Ruthin-School/Platter/workflows/CI/badge.svg)](https://github.com/Ruthin-School/Platter/actions/workflows/ci.yml)
+[![Security Audit](https://github.com/Ruthin-School/Platter/workflows/Security%20Audit/badge.svg)](https://github.com/Ruthin-School/Platter/actions/workflows/security.yml)
+[![Release](https://github.com/Ruthin-School/Platter/workflows/Release/badge.svg)](https://github.com/Ruthin-School/Platter/actions/workflows/release.yml)
 [![Licence](https://img.shields.io/badge/licence-AGPLv3-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.80+-orange.svg)](https://www.rust-lang.org/)
 
@@ -23,6 +24,7 @@ The application provides the following capabilities:
 5. **OAuth 2.0 Authentication** – Secure login with Microsoft Entra ID integration
 6. **RESTful API** – Programmatic access to all features
 7. **Security First** – Built-in security measures including Argon2 password hashing and PKCE (Proof Key for Code Exchange)
+8. **Accessibility Validation** – Compile-time WCAG 2.1 Level AA compliance enforcement
 
 ---
 
@@ -69,11 +71,13 @@ cd Platter
 Execute the following command:
 
 ```bash
-# Build and run the application
+# Build and run the application (default - fastest)
 cargo run
 ```
 
 The system will automatically download and compile dependencies on first run. This process may take several minutes.
+
+> 💡 **Build Optimization:** By default, optional features are disabled for faster builds. See the [Build Optimization Guide](docs/guides/build-optimization.md) to enable OAuth or accessibility validation when needed.
 
 ### Step 4: Access the Application
 
@@ -97,13 +101,16 @@ Begin here if you are new to Platter:
 
 - **[Quick Start Guide](docs/guides/getting-started.md)** – Installation and initial setup procedures
 - **[Configuration Guide](docs/guides/configuration.md)** – Environment variables and system settings
+- **[Build Optimization Guide](docs/guides/build-optimization.md)** – Reduce compile times with feature flags
 - **[OAuth Setup](docs/guides/oauth-setup.md)** – Microsoft Entra ID authentication configuration
+- **[Accessibility Guide](ACCESSIBILITY.md)** – WCAG 2.1 Level AA compliance validation system
 
 ### 🔧 Development Resources
 
 Use these guides if you are contributing to the project:
 
 - **[Development Setup](docs/development/setup.md)** – Configure your development environment
+- **[Build Optimization Guide](docs/guides/build-optimization.md)** – Faster compilation with feature flags
 - **[Contributing Guidelines](docs/development/contributing.md)** – Contribution procedures and standards
 - **[Testing Guide](docs/development/testing.md)** – Testing practices and methodologies
 
@@ -126,6 +133,7 @@ Understand the system design:
 
 - **[Design Documentation](docs/architecture/design.md)** – System architecture and technical design
 - **[Security Documentation](docs/architecture/security.md)** – Security features and best practices
+- **[Accessibility System](docs/accessibility/README.md)** – Compile-time accessibility validation
 
 ### 🔍 Troubleshooting Resources
 

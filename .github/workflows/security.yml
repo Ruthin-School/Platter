@@ -1,0 +1,201 @@
+name: Security Audit
+
+on:
+  # Run weekly on Monday at 00:00 UTC
+  schedule:
+    - cron: '0 0 * * 1'
+  # Allow manual trigger
+  workflow_dispatch:
+  # Run on pushes to main branch
+  push:
+    branches: [ main ]
+  # Run on pull requests
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  issues: write
+  security-events: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  audit:
+    name: Cargo Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Run cargo audit
+        id: audit
+        run: |
+          # Run audit and capture output
+          cargo audit --json > audit-report.json || true
+          
+          # Check if there are any vulnerabilities
+          if cargo audit 2>&1 | grep -q "error:"; then
+            echo "vulnerabilities_found=true" >> $GITHUB_OUTPUT
+            cargo audit
+          else
+            echo "vulnerabilities_found=false" >> $GITHUB_OUTPUT
+            echo "No vulnerabilities found!"
+          fi
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cargo-audit-report
+          path: audit-report.json
+          retention-days: 90
+
+      - name: Create issue for vulnerabilities
+        if: steps.audit.outputs.vulnerabilities_found == 'true' && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const auditReport = JSON.parse(fs.readFileSync('audit-report.json', 'utf8'));
+            
+            let body = '## 🔒 Security Vulnerabilities Detected\n\n';
+            body += 'The weekly security audit has detected vulnerabilities in dependencies.\n\n';
+            body += '### Vulnerabilities:\n\n';
+            
+            if (auditReport.vulnerabilities && auditReport.vulnerabilities.list.length > 0) {
+              auditReport.vulnerabilities.list.forEach(vuln => {
+                body += `#### ${vuln.advisory.id}: ${vuln.advisory.title}\n`;
+                body += `- **Package:** ${vuln.advisory.package}\n`;
+                body += `- **Severity:** ${vuln.advisory.severity || 'Unknown'}\n`;
+                body += `- **Patched versions:** ${vuln.versions.patched.join(', ') || 'None'}\n`;
+                body += `- **Description:** ${vuln.advisory.description}\n`;
+                body += `- **URL:** ${vuln.advisory.url}\n\n`;
+              });
+            }
+            
+            body += '\n### Action Required\n\n';
+            body += 'Please review and update the affected dependencies as soon as possible.\n\n';
+            body += '**Run locally:**\n';
+            body += '```bash\n';
+            body += 'cargo audit\n';
+            body += 'cargo update\n';
+            body += '```\n';
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Security Audit: Vulnerabilities Detected (${new Date().toISOString().split('T')[0]})`,
+              body: body,
+              labels: ['security', 'dependencies']
+            });
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+
+  cargo-deny:
+    name: Cargo Deny
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny
+
+      - name: Check licenses
+        run: cargo deny check licenses
+
+      - name: Check bans
+        run: cargo deny check bans
+
+      - name: Check advisories
+        run: cargo deny check advisories
+
+      - name: Check sources
+        run: cargo deny check sources
+
+  outdated:
+    name: Check Outdated Dependencies
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-outdated
+        run: cargo install cargo-outdated
+
+      - name: Check for outdated dependencies
+        id: outdated
+        run: |
+          cargo outdated --exit-code 1 > outdated-report.txt || true
+          if [ -s outdated-report.txt ]; then
+            echo "outdated_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "outdated_found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload outdated report
+        uses: actions/upload-artifact@v4
+        if: steps.outdated.outputs.outdated_found == 'true'
+        with:
+          name: outdated-dependencies-report
+          path: outdated-report.txt
+          retention-days: 30
+
+      - name: Create issue for outdated dependencies
+        if: steps.outdated.outputs.outdated_found == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('outdated-report.txt', 'utf8');
+            
+            let body = '## 📦 Outdated Dependencies Detected\n\n';
+            body += 'The weekly dependency check has found outdated packages.\n\n';
+            body += '### Report:\n\n';
+            body += '```\n' + report + '\n```\n\n';
+            body += '### Recommended Action\n\n';
+            body += 'Review and update dependencies as appropriate:\n\n';
+            body += '```bash\n';
+            body += 'cargo update\n';
+            body += 'cargo test --all-features\n';
+            body += '```\n';
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Outdated Dependencies (${new Date().toISOString().split('T')[0]})`,
+              body: body,
+              labels: ['dependencies', 'maintenance']
+            });

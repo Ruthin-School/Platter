@@ -1,0 +1,55 @@
+# Cargo configuration for optimized builds
+
+[build]
+# Parallel compilation is enabled by default
+# To limit cores, set: jobs = 4
+
+# Enable pipelining for faster builds (unstable feature)
+# Uncomment when using nightly: pipelining = true
+
+# Incremental compilation cache
+incremental = true
+
+[target.x86_64-unknown-linux-gnu]
+# Use faster linker on Linux (requires: sudo apt install lld or mold)
+# Uncomment one of these if you have the linker installed:
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+
+[alias]
+# Fast development build (no features)
+dev = "build"
+
+# Run server in development mode
+run-dev = "run"
+
+# Run with OAuth enabled
+run-oauth = "run --features oauth"
+
+# Run accessibility validation
+a11y = "run --bin a11y-check --features validate-a11y"
+
+# Run accessibility validation in verbose mode
+a11y-verbose = "run --bin a11y-check --features validate-a11y -- --verbose"
+
+# Quick check without building
+check-fast = "check"
+
+# Check with all features
+check-all = "check --all-features"
+
+# Run all tests
+test-all = "test --all"
+
+# Run tests with all features
+test-full = "test --all-features"
+
+# Build for production with all features
+build-prod = "build --release --features oauth,validate-a11y"
+
+# Clean and rebuild (useful when cargo cache is corrupted)
+rebuild = "clean && build"
+
+# Profile build times
+timings = "build --timings"

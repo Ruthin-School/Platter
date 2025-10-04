@@ -1,0 +1,194 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          # Extract changelog section for this version
+          sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
+          
+          # If no specific version found, use unreleased section
+          if [ ! -s release_notes.md ]; then
+            sed -n "/## \[Unreleased\]/,/## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
+          fi
+          
+          # Add header if empty
+          if [ ! -s release_notes.md ]; then
+            echo "## Release v$VERSION" > release_notes.md
+            echo "" >> release_notes.md
+            echo "See CHANGELOG.md for full details." >> release_notes.md
+          fi
+          
+          cat release_notes.md
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release v${{ steps.get_version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+  build-linux:
+    name: Build Linux Binary
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build release binary
+        run: |
+          cargo build --release --all-features
+          strip target/release/platter
+
+      - name: Create archive
+        run: |
+          cd target/release
+          tar czf platter-${{ needs.create-release.outputs.version }}-x86_64-linux.tar.gz platter
+          cd ../..
+
+      - name: Upload Linux binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/release/platter-${{ needs.create-release.outputs.version }}-x86_64-linux.tar.gz
+
+  build-macos:
+    name: Build macOS Binary
+    needs: create-release
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        run: |
+          cargo build --release --all-features
+          strip target/release/platter
+
+      - name: Create archive
+        run: |
+          cd target/release
+          tar czf platter-${{ needs.create-release.outputs.version }}-x86_64-macos.tar.gz platter
+          cd ../..
+
+      - name: Upload macOS binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/release/platter-${{ needs.create-release.outputs.version }}-x86_64-macos.tar.gz
+
+  build-windows:
+    name: Build Windows Binary
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release binary
+        run: cargo build --release --all-features
+
+      - name: Create archive
+        run: |
+          cd target/release
+          7z a platter-${{ needs.create-release.outputs.version }}-x86_64-windows.zip platter.exe
+          cd ../..
+
+      - name: Upload Windows binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/release/platter-${{ needs.create-release.outputs.version }}-x86_64-windows.zip
+
+  publish-crate:
+    name: Publish to crates.io
+    needs: [create-release, build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Publish to crates.io
+        run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --allow-dirty
+        continue-on-error: true
+
+  verify-release:
+    name: Verify Release
+    needs: [create-release, build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify tag matches Cargo.toml
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          CARGO_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          
+          echo "Tag version: $TAG_VERSION"
+          echo "Cargo.toml version: $CARGO_VERSION"
+          
+          if [ "$TAG_VERSION" != "$CARGO_VERSION" ]; then
+            echo "Error: Version mismatch!"
+            echo "Tag version ($TAG_VERSION) does not match Cargo.toml version ($CARGO_VERSION)"
+            exit 1
+          fi
+          
+          echo "Version verification passed!"

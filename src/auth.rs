@@ -116,12 +116,10 @@ pub async fn login_handler(
 }
 
 /// Logout handler for POST /admin/logout
-pub async fn logout_handler(
-    session: Session,
-    storage: web::Data<JsonStorage>,
-) -> impl Responder {
+pub async fn logout_handler(session: Session, storage: web::Data<JsonStorage>) -> impl Responder {
     // Check if this is an OAuth user
-    let is_oauth = session.get::<String>("user_type")
+    let is_oauth = session
+        .get::<String>("user_type")
         .map(|user_type| user_type == Some("oauth".to_string()))
         .unwrap_or(false);
 
@@ -129,30 +127,35 @@ pub async fn logout_handler(
 
     if is_oauth {
         // Load OAuth config to get logout endpoint
-        if let Ok(Some(config)) = storage.get_oauth_config() {
-            if config.enabled {
-                // Extract tenant from issuer_url (e.g., "https://login.microsoftonline.com/tenant-id/v2.0")
-                let issuer_base = config.issuer_url.trim_end_matches("/v2.0").trim_end_matches("/");
-                
-                // Get the redirect URI from config or use a default
-                let post_logout_uri = config.redirect_url.replace("/auth_callback", "/admin/login");
-                
-                // Construct OIDC logout URL
-                let logout_url = format!(
-                    "{}/oauth2/v2.0/logout?post_logout_redirect_uri={}",
-                    issuer_base,
-                    urlencoding::encode(&post_logout_uri)
-                );
-                
-                log::info!("OAuth user logout, redirecting to OIDC logout endpoint");
-                
-                return HttpResponse::SeeOther()
-                    .insert_header(("Location", logout_url))
-                    .finish();
-            }
+        if let Ok(Some(config)) = storage.get_oauth_config()
+            && config.enabled
+        {
+            // Extract tenant from issuer_url (e.g., "https://login.microsoftonline.com/tenant-id/v2.0")
+            let issuer_base = config
+                .issuer_url
+                .trim_end_matches("/v2.0")
+                .trim_end_matches("/");
+
+            // Get the redirect URI from config or use a default
+            let post_logout_uri = config
+                .redirect_url
+                .replace("/auth_callback", "/admin/login");
+
+            // Construct OIDC logout URL
+            let logout_url = format!(
+                "{}/oauth2/v2.0/logout?post_logout_redirect_uri={}",
+                issuer_base,
+                urlencoding::encode(&post_logout_uri)
+            );
+
+            log::info!("OAuth user logout, redirecting to OIDC logout endpoint");
+
+            return HttpResponse::SeeOther()
+                .insert_header(("Location", logout_url))
+                .finish();
         }
     }
-    
+
     // Fallback for non-OAuth users or if OAuth config unavailable
     HttpResponse::SeeOther()
         .insert_header(("Location", "/admin/login"))

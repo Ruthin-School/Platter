@@ -509,7 +509,7 @@ impl JsonStorage {
         menu_items.push(item);
         // Explicitly drop the lock before calling save_menu_items
         drop(menu_items);
-        self.save_menu_items().map_err(|e| AppError::from(e))
+        self.save_menu_items().map_err(AppError::from)
     }
 
     pub fn add_notice(&self, notice: Notice) -> Result<(), StorageError> {
@@ -539,7 +539,7 @@ impl JsonStorage {
             drop(menu_items);
             log::debug!("Released menu_items lock in update_menu_item");
             log::debug!("About to call save_menu_items()");
-            self.save_menu_items().map_err(|e| AppError::from(e))?;
+            self.save_menu_items().map_err(AppError::from)?;
             log::debug!("save_menu_items() completed successfully");
             Ok(())
         } else {
@@ -568,7 +568,7 @@ impl JsonStorage {
             drop(menu_items);
             log::debug!("Released menu_items lock in delete_menu_item");
             log::debug!("About to call save_menu_items()");
-            self.save_menu_items().map_err(|e| AppError::from(e))?;
+            self.save_menu_items().map_err(AppError::from)?;
             log::debug!("save_menu_items() completed successfully");
             Ok(())
         } else {
@@ -848,6 +848,7 @@ impl JsonStorage {
         Ok(oauth_config.clone())
     }
 
+    #[allow(dead_code)]
     pub fn save_oauth_config(&self, config: OAuthConfig) -> Result<(), StorageError> {
         let json_data = serde_json::to_string_pretty(&config)?;
         match fs::write(&self.oauth_config_path, json_data) {
