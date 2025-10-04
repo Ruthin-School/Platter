@@ -1,6 +1,6 @@
 [package]
 name = "platter"
-version = "0.7.0"
+version = "0.7.1"
 edition = "2024"
 description = "A modern, secure, and efficient web application for managing dining operations, built with Rust and Actix-web"
 license = "AGPL-3.0-only"
@@ -41,17 +41,11 @@ actix-cors = { version = "0.7.1", default-features = false }
 # Optimized tokio - only include what we actually need
 tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread"], default-features = false }
 log = { version = "0.4.28", default-features = false }
-# OAuth dependencies are now optional
-actix_web_openidconnect = { version = "0.3.1", optional = true, default-features = false }
-openidconnect = { version = "4.0.1", optional = true, default-features = false, features = ["reqwest"] }
-oauth2 = { version = "5.0.0", features = ["reqwest"], optional = true, default-features = false }
 urlencoding = { version = "2.1", default-features = false }
 regex = { version = "1.11", default-features = false, features = ["std", "perf"] }
 
 [features]
 default = []
-# Enable OAuth/OIDC authentication support
-oauth = ["actix_web_openidconnect", "openidconnect", "oauth2"]
 # Enable compile-time accessibility validation (no longer affects dependencies)
 validate-a11y = []
 
