@@ -98,7 +98,6 @@ Complete these tasks before deploying to production:
 - [ ] **Configure CORS_ALLOWED_ORIGINS** with actual domain names (no wildcards)
 - [ ] **Enable HTTPS** with valid SSL/TLS (Secure Sockets Layer/Transport Layer Security) certificate
 - [ ] **Change default admin credentials** from `admin`/`admin123`
-- [ ] **Configure OAuth settings** with proper client credentials (if using OAuth)
 - [ ] **Set PRODUCTION=true** to enable production security mode
 - [ ] **Configure logging and monitoring** for security events
 - [ ] **Set up automated backups** for data directory

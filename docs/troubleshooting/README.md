@@ -6,32 +6,12 @@ Solutions to common issues and debugging guides for Platter.
 
 ---
 
-## 📚 Troubleshooting Guides
-
-### [🔐 OAuth Troubleshooting Guide](oauth.md)
-
-**What this covers:** Resolve OAuth authentication issues with Microsoft Entra ID
-
-**Topics included:**
-- Quick fixes for common OAuth problems
-- Configuration verification procedures
-- Error message interpretation and solutions
-- Advanced debugging techniques
-- Log message reference guide
-
-**Reading time:** Approximately 15 minutes
-
----
-
 ## 🔍 Quick Diagnostics
 
 ### Common Issues Overview
 
 **Authentication problems:**
-- OAuth login button not appearing on login page
-- Authentication fails after Microsoft redirect
 - Session persistence problems
-- Automatic re-login after logout
 
 **Configuration problems:**
 - Configuration file errors or missing files
@@ -90,7 +70,6 @@ echo $CORS_ALLOWED_ORIGINS
 
 **Core documentation:**
 - [Main README](../../README.md) – Project overview
-- [OAuth Setup Guide](../guides/oauth-setup.md) – Initial OAuth configuration
 - [Configuration Guide](../guides/configuration.md) – Environment variables reference
 - [Security Documentation](../architecture/security.md) – Security settings
 
@@ -129,13 +108,13 @@ $env:RUST_LOG="debug"
 
 ```bash
 # Using jq (if installed)
-jq '.' data/oauth_config.json
+jq '.' data/admin_users.json
 
 # Using Python
-python3 -m json.tool data/oauth_config.json
+python3 -m json.tool data/admin_users.json
 
 # Using Node.js
-node -e "console.log(JSON.parse(require('fs').readFileSync('data/oauth_config.json')))"
+node -e "console.log(JSON.parse(require('fs').readFileSync('data/admin_users.json')))"
 ```
 
 **Expected result:** Formatted JSON output (file is valid)  
@@ -170,7 +149,6 @@ node -e "console.log(JSON.parse(require('fs').readFileSync('data/oauth_config.js
 
 Access additional troubleshooting resources:
 
-- **[OAuth Setup Guide](../guides/oauth-setup.md)** – Initial OAuth configuration instructions
 - **[Configuration Guide](../guides/configuration.md)** – Environment variables and settings
 - **[Security Documentation](../architecture/security.md)** – Security settings and requirements
 - **[Production Deployment Guide](../deployment/production.md)** – Production troubleshooting procedures

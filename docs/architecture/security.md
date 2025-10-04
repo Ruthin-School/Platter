@@ -26,7 +26,7 @@ Platter implements multiple layers of security protection to safeguard user data
 
 | Security Layer | Implementation | Purpose |
 |---------------|----------------|---------|
-| Authentication | Argon2 password hashing + OAuth 2.0 | Verify user identity |
+| Authentication | Argon2 password hashing | Verify user identity |
 | Authorisation | Role-based access control (RBAC) | Control resource access |
 | Data Protection | Input validation + output encoding | Prevent injection attacks |
 | Network Security | Secure cookies + CORS + CSRF protection | Protect data in transit |
@@ -64,33 +64,7 @@ The application uses Argon2, an industry-standard password hashing algorithm.
 - **Memory-hard:** Resistant to GPU (Graphics Processing Unit) and ASIC (Application-Specific Integrated Circuit) attacks
 - **Time-consuming:** Deliberately slow to prevent brute force attacks
 
-### 2.2: OAuth 2.0 Authentication
-
-**Microsoft Entra ID Integration:**
-
-The application supports OAuth 2.0 authentication with OpenID Connect (OIDC).
-
-**Security features:**
-
-| Feature | Implementation | Security Benefit |
-|---------|---------------|------------------|
-| PKCE (Proof Key for Code Exchange) | Code verifier + code challenge | Prevents authorisation code interception |
-| State Parameter | Random state string validation | Prevents CSRF attacks during OAuth flow |
-| Nonce Validation | One-time use tokens | Prevents replay attacks |
-| Email Whitelist | Approved email addresses only | Restricts access to authorised users |
-
-**OAuth authentication flow:**
-
-1. User initiates login
-2. System generates PKCE code verifier and challenge
-3. System redirects user to Microsoft Entra ID with challenge
-4. User authenticates with Microsoft
-5. Microsoft redirects back with authorisation code
-6. System exchanges code for tokens using verifier
-7. System validates tokens and email against whitelist
-8. System creates authenticated session
-
-### 2.3: Session Management
+### 2.2: Session Management
 
 **Secure Session Configuration:**
 
@@ -115,7 +89,7 @@ The application supports OAuth 2.0 authentication with OpenID Connect (OIDC).
 
 | Role | Permissions | Restrictions |
 |------|------------|--------------|
-| **Administrator** | Full access to all features | Must authenticate via admin credentials or OAuth whitelist |
+| **Administrator** | Full access to all features | Must authenticate via admin credentials |
 | **Public User** | View menu and notices only | Cannot access admin features or API write operations |
 
 **Enforcement mechanism:**
@@ -318,37 +292,6 @@ python3 -c "import secrets; print(secrets.token_urlsafe(64))"
 
 ⚠️ **Critical:** Never commit `SESSION_SECRET` to version control. Use environment files (.env) excluded from Git.
 
-### 5.2: OAuth Configuration
-
-**Required environment variables:**
-
-```bash
-OAUTH_CLIENT_ID=your-application-client-id
-OAUTH_CLIENT_SECRET=your-client-secret
-OAUTH_REDIRECT_URI=https://yourdomain.com/auth/callback
-OAUTH_TENANT_ID=your-tenant-id
-OAUTH_ALLOWED_EMAILS=admin@yourdomain.com,user@yourdomain.com
-```
-
-**Security considerations:**
-
-1. **Client Secret Protection:**
-   - Store in environment variables only
-   - Never log or display in error messages
-   - Rotate regularly (every 90 days recommended)
-
-2. **Email Whitelist:**
-   - Comma-separated list of authorised email addresses
-   - Case-insensitive matching
-   - Validated against OAuth token claims
-
-3. **Redirect URI Validation:**
-   - Must exactly match configured value
-   - Use HTTPS in production
-   - Validate domain ownership
-
-Detailed OAuth setup: [OAuth Setup Guide](../guides/oauth-setup.md)
-
 ---
 
 ## 📋 Section 6: Best Practices
@@ -438,12 +381,6 @@ PRODUCTION=true
 
 # CORS configuration
 CORS_ALLOWED_ORIGINS=https://yourdomain.com
-
-# OAuth configuration (if used)
-OAUTH_CLIENT_ID=your-client-id
-OAUTH_CLIENT_SECRET=your-client-secret
-OAUTH_TENANT_ID=your-tenant-id
-OAUTH_ALLOWED_EMAILS=comma,separated,emails
 ```
 
 **Practice 6.2.2: Secure Coding Guidelines**
@@ -550,8 +487,6 @@ Complete all items before production deployment:
 
 ### 8.2: Authentication and Authorisation
 
-- [ ] **Configure OAuth settings** with proper client credentials (if using OAuth)
-- [ ] **Set OAUTH_ALLOWED_EMAILS** with authorised email addresses (if using OAuth)
 - [ ] **Verify session expiration** is appropriate for your use case
 - [ ] **Test authentication flow** completely before going live
 - [ ] **Document admin account recovery** procedure
@@ -618,7 +553,6 @@ Access these resources for additional information:
 
 - **[Design Documentation](design.md)** – System architecture overview and design principles
 - **[Configuration Guide](../guides/configuration.md)** – Security-related configuration options
-- **[OAuth Setup Guide](../guides/oauth-setup.md)** – OAuth authentication configuration instructions
 - **[Production Deployment Guide](../deployment/production.md)** – Production security practices and deployment
 - **[API Reference](../api/reference.md)** – API security considerations and authentication
 

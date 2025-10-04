@@ -345,36 +345,7 @@ docker-compose down -v
 
 ## ⚙️ Section 4: Advanced Configuration
 
-### 4.1: OAuth Configuration
-
-**Step 4.1.1: Mount OAuth Configuration File**
-
-```bash
-# Run with OAuth config mounted
-docker run -d \
-  --name platter \
-  -p 8080:8080 \
-  -v $(pwd)/oauth_config.json:/app/data/oauth_config.json:ro \
-  -v platter-data:/app/data \
-  platter:latest
-```
-
-**Mount options:**
-- `-v $(pwd)/oauth_config.json:/app/data/oauth_config.json:ro`: Mounts file read-only
-- `:ro`: Read-only flag prevents container from modifying file
-
-**Step 4.1.2: Docker Compose with OAuth**
-
-```yaml
-services:
-  platter:
-    # ... other configuration ...
-    volumes:
-      - platter-data:/app/data
-      - ./oauth_config.json:/app/data/oauth_config.json:ro
-```
-
-### 4.2: Custom Network Configuration
+### 4.1: Custom Network Configuration
 
 **Step 4.2.1: Create Custom Network**
 
@@ -684,7 +655,6 @@ services:
       - RUST_LOG=warn
     volumes:
       - platter-data:/app/data:rw
-      - ./oauth_config.json:/app/data/oauth_config.json:ro
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]

@@ -21,10 +21,9 @@ The application provides the following capabilities:
 2. **Notice System** – Display real-time notices and announcements
 3. **Scheduling** – Automate menu scheduling functionality
 4. **Admin Interface** – Access comprehensive administrative controls
-5. **OAuth 2.0 Authentication** – Secure login with Microsoft Entra ID integration
-6. **RESTful API** – Programmatic access to all features
-7. **Security First** – Built-in security measures including Argon2 password hashing and PKCE (Proof Key for Code Exchange)
-8. **Accessibility Validation** – Compile-time WCAG 2.1 Level AA compliance enforcement
+5. **RESTful API** – Programmatic access to all features
+6. **Security First** – Built-in security measures including Argon2 password hashing
+7. **Accessibility Validation** – Compile-time WCAG 2.1 Level AA compliance enforcement
 
 ---
 
@@ -77,7 +76,7 @@ cargo run
 
 The system will automatically download and compile dependencies on first run. This process may take several minutes.
 
-> 💡 **Build Optimization:** By default, optional features are disabled for faster builds. See the [Build Optimization Guide](docs/guides/build-optimization.md) to enable OAuth or accessibility validation when needed.
+> 💡 **Build Optimization:** By default, optional features are disabled for faster builds. See the [Build Optimization Guide](docs/guides/build-optimization.md) to enable accessibility validation when needed.
 
 ### Step 4: Access the Application
 
@@ -102,7 +101,6 @@ Begin here if you are new to Platter:
 - **[Quick Start Guide](docs/guides/getting-started.md)** – Installation and initial setup procedures
 - **[Configuration Guide](docs/guides/configuration.md)** – Environment variables and system settings
 - **[Build Optimization Guide](docs/guides/build-optimization.md)** – Reduce compile times with feature flags
-- **[OAuth Setup](docs/guides/oauth-setup.md)** – Microsoft Entra ID authentication configuration
 - **[Accessibility Guide](ACCESSIBILITY.md)** – WCAG 2.1 Level AA compliance validation system
 
 ### 🔧 Development Resources
@@ -135,12 +133,6 @@ Understand the system design:
 - **[Security Documentation](docs/architecture/security.md)** – Security features and best practices
 - **[Accessibility System](docs/accessibility/README.md)** – Compile-time accessibility validation
 
-### 🔍 Troubleshooting Resources
-
-Resolve common issues:
-
-- **[OAuth Troubleshooting](docs/troubleshooting/oauth.md)** – Authentication issue resolution
-
 ### 📖 Complete Documentation Index
 
 Browse all documentation sections: **[Documentation Index](docs/README.md)**
@@ -154,10 +146,9 @@ Browse all documentation sections: **[Documentation Index](docs/README.md)**
 The application implements industry-standard security measures:
 
 1. **Argon2 Password Hashing** – Industry-standard password security algorithm
-2. **OAuth 2.0 with PKCE** – Enhanced security for authentication flows
-3. **Secure Session Management** – Encrypted sessions with HttpOnly cookies
-4. **CSRF Protection** – Token-based Cross-Site Request Forgery protection
-5. **Rate Limiting** – Protection against brute force attacks
+2. **Secure Session Management** – Encrypted sessions with HttpOnly cookies
+3. **CSRF Protection** – Token-based Cross-Site Request Forgery protection
+4. **Rate Limiting** – Protection against brute force attacks
 
 > 📘 **Reference:** Complete security details are available in the [Security Documentation](docs/architecture/security.md).
 
@@ -177,7 +168,6 @@ Access comprehensive administrative tools:
 1. Administrative dashboard for system management
 2. Notice and announcement system
 3. User access control mechanisms
-4. OAuth email whitelist configuration
 
 ### API Access Capabilities
 
@@ -206,7 +196,7 @@ Programmatic access to system features:
 ### Authentication Technologies
 
 1. Argon2 password hashing algorithm
-2. OAuth 2.0 and OIDC (OpenID Connect) protocols
+2. Session-based authentication with secure cookies
 
 > 📘 **Reference:** Complete architecture details are available in the [Design Documentation](docs/architecture/design.md).
 

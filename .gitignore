@@ -22,8 +22,6 @@ Cargo.lock
 Thumbs.db
 
 ### Application Data ###
-# OAuth configuration contains sensitive client secrets
-data/oauth_config.json
 
 ### Logs ###
 logs/

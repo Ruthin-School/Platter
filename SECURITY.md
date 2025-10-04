@@ -13,7 +13,6 @@
 - **[Security Documentation](docs/architecture/security.md)** - Complete security guide
 - **[Architecture Documentation](docs/architecture/README.md)** - Architecture section overview
 - **[Configuration Guide](docs/guides/configuration.md)** - Security configuration
-- **[OAuth Setup](docs/guides/oauth-setup.md)** - OAuth authentication setup
 - **[Documentation Home](docs/README.md)** - Main documentation hub
 
 ## Why did this move?

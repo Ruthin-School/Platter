@@ -24,9 +24,6 @@ dev = "build"
 # Run server in development mode
 run-dev = "run"
 
-# Run with OAuth enabled
-run-oauth = "run --features oauth"
-
 # Run accessibility validation
 a11y = "run --bin a11y-check --features validate-a11y"
 
@@ -46,7 +43,7 @@ test-all = "test --all"
 test-full = "test --all-features"
 
 # Build for production with all features
-build-prod = "build --release --features oauth,validate-a11y"
+build-prod = "build --release --features validate-a11y"
 
 # Clean and rebuild (useful when cargo cache is corrupted)
 rebuild = "clean && build"

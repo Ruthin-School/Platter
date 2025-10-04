@@ -312,44 +312,12 @@ Complete these requirements before production deployment:
 
 This section explains JSON configuration files.
 
-### OAuth Configuration File
-
-**File location:** `data/oauth_config.json`
-
-**Purpose:** Configures OAuth 2.0 authentication with Microsoft Entra ID
-
-#### OAuth Configuration Example
-
-Create this file with the following structure:
-
-```json
-{
-  "client_id": "your-azure-app-client-id",
-  "client_secret": "your-azure-app-client-secret",
-  "issuer_url": "https://login.microsoftonline.com/your-tenant-id/v2.0",
-  "redirect_url": "https://your-domain.com/auth_callback",
-  "allowed_emails": ["admin@yourdomain.com", "user@yourdomain.com"],
-  "enabled": true
-}
-```
-
-**Field explanations:**
-- **client_id** – Application (client) ID from Azure Portal
-- **client_secret** – Client secret value (not the secret ID)
-- **issuer_url** – Microsoft identity platform issuer URL
-- **redirect_url** – Callback URL after authentication
-- **allowed_emails** – Array of authorised email addresses
-- **enabled** – Boolean flag to enable/disable OAuth
-
-> 📘 **Detailed Configuration:** Complete OAuth setup instructions are available in the [OAuth Setup Guide](oauth-setup.md).
-
 ### Data Directory Structure
 
 The application uses these JSON files for data storage:
 
 ```
 data/
-├── oauth_config.json       # OAuth configuration (optional)
 ├── admin_users.json        # Admin user credentials
 ├── menu_items.json         # Menu items database
 ├── menu_presets.json       # Reusable menu presets
@@ -376,7 +344,6 @@ chmod 644 data/*.json
 **Application requirements:**
 - The application must have write access to the data directory
 - Files must be readable by the application user
-- Sensitive files (like oauth_config.json) should have restricted permissions
 
 ---
 
@@ -398,8 +365,8 @@ env | grep -E "(PORT|HOST|RUST_LOG|PRODUCTION|CORS_ALLOWED_ORIGINS|SESSION_SECRE
 Execute this command to check JSON syntax:
 
 ```bash
-# Validate OAuth configuration file
-jq '.' data/oauth_config.json
+# Validate admin users file
+jq '.' data/admin_users.json
 ```
 
 **Expected output:** Formatted JSON with no error messages
@@ -407,7 +374,7 @@ jq '.' data/oauth_config.json
 **If jq is not installed:**
 ```bash
 # Alternative: Use Python
-python3 -m json.tool data/oauth_config.json
+python3 -m json.tool data/admin_users.json
 ```
 
 ### Common Configuration Issues
@@ -510,7 +477,6 @@ RUST_LOG=warn
 Access these resources for additional information:
 
 - **[Getting Started Guide](getting-started.md)** – Initial installation and setup
-- **[OAuth Setup Guide](oauth-setup.md)** – OAuth authentication configuration
 - **[Security Documentation](../architecture/security.md)** – Security best practices and guidelines
 - **[Production Deployment](../deployment/production.md)** – Production deployment procedures
 - **[Troubleshooting Guide](../troubleshooting/README.md)** – Resolve configuration issues
