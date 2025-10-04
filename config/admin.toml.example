@@ -1,0 +1,65 @@
+# Admin Users Configuration Template
+# Copy this file to admin.toml and configure your admin users
+# IMPORTANT: Never commit admin.toml to version control!
+
+[metadata]
+schema_version = "1.0.0"
+config_name = "Admin Users Configuration"
+last_modified = "2025-10-04T15:00:00Z"
+
+# Admin Users
+# Use the CLI tool to generate password hashes:
+# platter admin add-user --username <username>
+
+[[admin_users]]
+id = "98ac55c5-e6f7-4e9e-8357-1ff0c0f4b30d"  # Generate new UUID
+username = "admin"
+password_hash = "$argon2id$v=19$m=19456,t=2,p=1$..."  # Use CLI to generate
+created_at = "2025-09-01T10:00:00Z"
+last_login = "2025-10-04T14:30:00Z"
+roles = ["super_admin"]
+is_active = true
+
+# Role Definitions
+[roles]
+
+[roles.super_admin]
+description = "Full system access - can manage all settings, users, and content"
+permissions = [
+    "manage_users",
+    "manage_menu_items",
+    "manage_presets",
+    "manage_schedules",
+    "manage_notices",
+    "manage_settings",
+    "view_logs",
+    "export_data"
+]
+
+[roles.admin]
+description = "Can manage content but not system settings or users"
+permissions = [
+    "manage_menu_items",
+    "manage_presets",
+    "manage_schedules",
+    "manage_notices",
+    "view_logs"
+]
+
+[roles.editor]
+description = "Can edit content but not delete or manage schedules"
+permissions = [
+    "edit_menu_items",
+    "edit_notices",
+    "view_presets",
+    "view_schedules"
+]
+
+[roles.viewer]
+description = "Read-only access to admin interface"
+permissions = [
+    "view_menu_items",
+    "view_presets",
+    "view_schedules",
+    "view_notices"
+]

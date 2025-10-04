@@ -1,0 +1,159 @@
+# Application Settings Configuration
+# This file contains application-wide settings and preferences
+# Last updated: 2025-10-04
+
+[metadata]
+schema_version = "1.0.0"
+config_name = "Platter Application Settings"
+
+# Application Settings
+[app]
+name = "Platter"
+version = "0.8.0"
+environment = "development"  # development, staging, production
+
+# Localization
+[localization]
+default_language = "en"
+timezone = "Europe/London"
+date_format = "DD/MM/YYYY"
+time_format = "24h"  # 24h or 12h
+
+# Supported languages (for future i18n)
+supported_languages = ["en", "zh-CN"]
+
+# Security Settings
+[security]
+# Session management
+session_timeout_minutes = 30
+session_cookie_name = "platter_session"
+session_cookie_secure = false  # Set to true in production with HTTPS
+session_cookie_httponly = true
+session_cookie_same_site = "Strict"  # Strict, Lax, None
+
+# Authentication
+max_login_attempts = 5
+login_lockout_duration_minutes = 15
+password_reset_token_expiry_hours = 24
+
+# Future feature: Two-factor authentication
+require_2fa = false
+2fa_issuer = "Platter"
+
+# API Security
+enable_cors = true
+cors_allowed_origins = ["http://localhost:3000", "http://localhost:8080"]
+cors_max_age_seconds = 3600
+
+# Server Settings
+[server]
+host = "127.0.0.1"
+port = 8080
+workers = 4  # Number of worker threads (0 = number of CPU cores)
+max_connections = 25000
+keep_alive_seconds = 75
+client_timeout_seconds = 5
+shutdown_timeout_seconds = 30
+
+# Request size limits
+max_request_size_mb = 10
+max_json_payload_mb = 2
+
+# Logging Configuration
+[logging]
+level = "info"  # trace, debug, info, warn, error
+log_to_console = true
+log_to_file = true
+log_file_path = "logs/platter.log"
+log_rotation = "daily"  # daily, size
+max_log_file_size_mb = 100
+max_log_files = 30
+
+# Log format
+log_format = "json"  # json, text
+log_timestamp_format = "rfc3339"
+
+# Data Storage Settings
+[storage]
+data_directory = "data"
+backup_directory = "data/backups"
+enable_auto_backup = true
+backup_interval_hours = 24
+max_backup_count = 7
+
+# File paths (relative to data_directory)
+menu_items_file = "menu_items.json"
+notices_file = "notices.json"
+menu_presets_file = "menu_presets.json"
+menu_schedules_file = "menu_schedules.json"
+
+# Menu Management
+[menu]
+# Schedule settings
+enable_scheduling = true
+schedule_check_interval_seconds = 60
+auto_activate_schedules = true
+
+# Menu item availability
+default_item_availability = true
+track_item_history = true
+
+# Notifications
+[notifications]
+enable_email_notifications = false
+enable_push_notifications = false
+
+# Future feature: Email settings
+smtp_host = "smtp.example.com"
+smtp_port = 587
+smtp_username = ""
+smtp_password = ""
+smtp_from_address = "noreply@platter.example.com"
+
+# UI Settings
+[ui]
+# Theme
+theme = "light"  # light, dark, auto
+primary_color = "#2563eb"  # Tailwind blue-600
+enable_animations = true
+
+# Accessibility
+enforce_accessibility_checks = true
+wcag_level = "AA"  # A, AA, AAA
+minimum_contrast_ratio = 4.5
+
+# Menu display
+items_per_page = 20
+show_allergen_icons = true
+show_nutritional_info = false  # Future feature
+
+# Performance Settings
+[performance]
+# Caching
+enable_template_cache = true
+enable_static_file_cache = true
+static_file_cache_max_age_seconds = 3600
+
+# Rate limiting
+enable_rate_limiting = true
+rate_limit_requests_per_minute = 100
+rate_limit_burst_size = 20
+
+# Development Settings (only active in development environment)
+[development]
+hot_reload_templates = true
+expose_debug_endpoints = true
+verbose_error_messages = true
+enable_sql_query_logging = false
+
+# Feature Flags
+[features]
+enable_menu_presets = true
+enable_menu_scheduling = true
+enable_notices = true
+enable_allergen_tracking = true
+enable_dietary_filters = true  # Future feature
+enable_nutritional_info = false  # Future feature
+enable_multi_language = false  # Future feature
+enable_user_feedback = false  # Future feature
+enable_analytics = false  # Future feature

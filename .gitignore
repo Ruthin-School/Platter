@@ -22,7 +22,17 @@ Cargo.lock
 Thumbs.db
 
 ### Application Data ###
+# Data files (contain application data, not committed)
+data/*.json
+!data/*.json.example
+
+# Config files with secrets (not committed)
+config/admin.toml
 
 ### Logs ###
 logs/
 *.log
+
+### Backups ###
+data/backups/
+*.backup

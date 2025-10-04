@@ -214,10 +214,10 @@ GET /api/items
 - `id`: Unique identifier for the menu item
 - `name`: Display name of the item
 - `description`: Detailed description text
-- `category`: Item category (e.g., "Main Course", "Dessert")
-- `price`: Price as a string (e.g., "10.99")
+- `category`: Item category (e.g., 'Main Course', 'Dessert')
+- `price`: Price as a string (e.g., '10.99')
 - `available`: Boolean indicating if item is currently available
-- `tags`: Array of string tags for filtering (e.g., ["vegetarian", "gluten-free"])
+- `tags`: Array of string tags for filtering (e.g., ['vegetarian', 'gluten-free'])
 
 ---
 
@@ -245,7 +245,7 @@ POST /api/items
 }
 ```
 
-**All fields are required.**
+**Note:** All fields are required.
 
 **Success response:** Returns created item with generated ID (HTTP 201)
 
@@ -368,7 +368,7 @@ POST /api/notices
 **Field definitions:**
 - `title`: Notice headline (required)
 - `content`: Notice message content (required)
-- `priority`: Priority level - must be one of: `"normal"`, `"high"`, or `"urgent"` (required)
+- `priority`: Priority level - must be one of: `'normal'`, `'high'`, or `'urgent'` (required)
 - `startDate`: ISO 8601 (International Organisation for Standardisation date format) date-time when notice becomes active (required)
 - `endDate`: ISO 8601 date-time when notice expires (required)
 
@@ -580,7 +580,7 @@ POST /api/schedules
 **Field definitions:**
 - `presetId`: ID of the menu preset to schedule (required)
 - `date`: Date in YYYY-MM-DD format (required)
-- `mealType`: Meal type - must be one of: `"breakfast"`, `"lunch"`, or `"dinner"` (required)
+- `mealType`: Meal type - must be one of: `'breakfast'`, `'lunch'`, or `'dinner'` (required)
 - `notes`: Optional notes about this schedule (optional)
 
 **Success response:** Returns created schedule with generated ID (HTTP 201)
@@ -722,7 +722,7 @@ Content-Type: application/json
 **What happened:**
 1. Server received the request
 2. Server validated all required fields
-3. Server generated unique ID `"abc123"`
+3. Server generated unique ID `'abc123'`
 4. Server saved the item to storage
 5. Server returned the complete item including the generated ID
 
@@ -777,7 +777,7 @@ GET /api/items/nonexistent-id
 ```
 
 **What happened:**
-1. Server received request for item with ID `"nonexistent-id"`
+1. Server received request for item with ID `'nonexistent-id'`
 2. Server searched storage and found no matching item
 3. Server returned standardised error response with HTTP 404 status
 

@@ -1,0 +1,103 @@
+# Validation Rules Configuration
+# This file defines validation constraints for all data entities in Platter
+# Last updated: 2025-10-04
+
+[metadata]
+schema_version = "1.0.0"
+description = "Data validation rules for menu items, presets, schedules, and other entities"
+
+[menu_items]
+# Name validation
+name_min_length = 3
+name_max_length = 200
+allow_duplicate_names = false
+
+# Description validation
+description_min_length = 10
+description_max_length = 1000
+
+# Category validation - must match MenuCategory enum
+valid_categories = ["Mains", "Sides", "Desserts", "Beverages"]
+
+[menu_items.allergens]
+# Valid allergen values that must be from this list
+valid_allergens = [
+    "eggs",
+    "milk",
+    "fish",
+    "wheat (gluten)",
+    "soy",
+    "peanuts",
+    "tree nuts (almonds)",
+    "sesame",
+    "celery",
+    "oats (gluten)",
+    "may contain nuts in granola"
+]
+
+# Allow free-form allergen descriptions (for special cases)
+allow_custom_allergens = true
+custom_allergen_max_length = 100
+
+[menu_presets]
+# Preset name validation
+name_min_length = 3
+name_max_length = 100
+allow_duplicate_names = false
+
+# Description validation
+description_min_length = 0  # Optional field
+description_max_length = 500
+
+# Menu items in preset
+min_items = 1
+max_items = 50
+
+[menu_schedules]
+# Schedule name validation
+name_min_length = 3
+name_max_length = 100
+
+# Description validation
+description_min_length = 0  # Optional field
+description_max_length = 500
+
+# Time validation
+min_schedule_duration_hours = 1
+max_schedule_duration_days = 365
+
+# Conflict detection
+allow_overlapping_schedules = false
+check_preset_availability = true
+
+# Valid recurrence types - must match ScheduleRecurrence enum
+valid_recurrence = ["Daily", "Weekly", "Monthly", "Custom"]
+
+# Valid status types - must match ScheduleStatus enum
+valid_status = ["Active", "Ended", "Pending", "Failed", "Conflicted"]
+
+[notices]
+# Notice title validation
+title_min_length = 3
+title_max_length = 200
+
+# Content validation
+content_min_length = 10
+content_max_length = 2000
+
+# Only one active notice allowed at a time
+max_active_notices = 1
+
+[admin_users]
+# Username validation
+username_min_length = 3
+username_max_length = 50
+username_pattern = "^[a-zA-Z0-9_-]+$"  # Alphanumeric, underscore, hyphen only
+
+# Password requirements (enforced during password setting, not storage)
+password_min_length = 12
+password_require_uppercase = true
+password_require_lowercase = true
+password_require_numbers = true
+password_require_special_chars = true
+password_special_chars = "!@#$%^&*()-_=+[]{}|;:,.<>?"
