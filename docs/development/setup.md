@@ -436,9 +436,6 @@ cargo watch -x test
 
 # Check code without running
 cargo watch -x check
-
-# Run with specific features
-cargo watch -x "run --features oauth"
 ```
 
 ### 5.3: Feature Development Process

@@ -206,9 +206,8 @@ Now that Platter is installed and running, choose your next steps based on your 
 
 Complete these tasks in sequence:
 
-1. **Configure OAuth Authentication** – Follow the [OAuth Setup Guide](oauth-setup.md)
-2. **Configure Environment Variables** – Review the [Configuration Guide](configuration.md)
-3. **Review Security Settings** – Read the [Security Documentation](../architecture/security.md)
+1. **Configure Environment Variables** – Review the [Configuration Guide](configuration.md)
+2. **Review Security Settings** – Read the [Security Documentation](../architecture/security.md)
 
 ### Next Steps for Developers
 
@@ -289,7 +288,6 @@ PORT=3000 cargo run
 Access these resources for additional information:
 
 - **[Configuration Guide](configuration.md)** – Configure environment variables and system settings
-- **[OAuth Setup](oauth-setup.md)** – Configure authentication with Microsoft Entra ID
 - **[Development Setup](../development/setup.md)** – Set up development environment for contributors
 - **[Troubleshooting](../troubleshooting/README.md)** – Resolve common issues and errors
 - **[API Reference](../api/reference.md)** – Complete API documentation for integration

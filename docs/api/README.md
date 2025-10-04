@@ -33,7 +33,6 @@ Complete REST API (Representational State Transfer Application Programming Inter
 **Available operations:**
 - User login and logout
 - Session management and validation
-- OAuth (Open Authorisation) authentication flow
 
 ---
 

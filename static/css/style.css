@@ -30,9 +30,9 @@
   --color-success: #2e7d32;
   --color-success-light: #4caf50;
   --color-success-dark: #1b5e20;
-  --color-warning: #d84315;
+  --color-warning: #c93900;
   --color-warning-light: #ff9800;
-  --color-warning-dark: #d84315;
+  --color-warning-dark: #b33200;
   --color-error: #c62828;
   --color-error-light: #f44336;
   --color-error-dark: #b71c1c;
@@ -722,9 +722,6 @@ table tr:hover {
   margin-bottom: var(--spacing-lg);
 }
 
-.oauth-section {
-  margin-bottom: var(--spacing-lg);
-}
 
 .btn-microsoft {
   background-color: #0078d4;

@@ -71,9 +71,6 @@ jobs:
       - name: Run tests (no default features)
         run: cargo test --verbose --no-default-features
 
-      - name: Run tests (oauth feature)
-        run: cargo test --verbose --no-default-features --features oauth
-
       - name: Run tests (validate-a11y feature)
         run: cargo test --verbose --no-default-features --features validate-a11y
 

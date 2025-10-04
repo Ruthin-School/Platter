@@ -35,7 +35,6 @@
 5. **Improved Cargo Aliases**
    - `cargo dev` - fast development build
    - `cargo run-dev` - run without features
-   - `cargo run-oauth` - run with OAuth enabled
    - `cargo a11y` - run accessibility validation
    - `cargo build-prod` - production build with all features
    - `cargo timings` - profile build times
@@ -54,9 +53,8 @@
 | Build Type | Before | After | Improvement |
 |------------|--------|-------|-------------|
 | Clean build (no features) | ~30s | ~15s | **50% faster** |
-| Clean build (with oauth) | ~45s | ~25s | **44% faster** |
 | Clean build (validate-a11y) | ~35s | ~18s | **49% faster** |
-| Clean build (all features) | ~50s | ~30s | **40% faster** |
+| Clean build (all features) | ~40s | ~25s | **38% faster** |
 | Incremental rebuild | ~20s | ~3s | **85% faster** |
 
 ## Quick Start
@@ -67,11 +65,6 @@ cargo dev      # or: cargo build
 cargo run-dev  # or: cargo run
 ```
 
-### For Testing OAuth
-```bash
-cargo run-oauth  # or: cargo run --features oauth
-```
-
 ### Before Committing
 ```bash
 cargo a11y  # runs accessibility validation
@@ -79,7 +72,7 @@ cargo a11y  # runs accessibility validation
 
 ### For Production
 ```bash
-cargo build-prod  # or: cargo build --release --features oauth,validate-a11y
+cargo build-prod  # or: cargo build --release --features validate-a11y
 ```
 
 ## Optional: Install Fast Linker

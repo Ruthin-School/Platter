@@ -46,7 +46,7 @@ The API uses session-based authentication with secure cookies.
 
 Execute these steps in sequence to authenticate:
 
-1. Send credentials to [`/admin/login`](../guides/oauth-setup.md) endpoint
+1. Send credentials to `/admin/login` endpoint
 2. The server validates credentials and creates a session
 3. The server sends a session cookie to your browser
 4. Your browser includes this cookie automatically in subsequent requests
@@ -795,7 +795,6 @@ Complete these tasks in sequence:
 
 1. **Test API Locally** – Follow the [Development Setup Guide](../development/setup.md)
 2. **Review Security Requirements** – Study the [Security Documentation](../architecture/security.md)
-3. **Implement Authentication** – Configure using the [OAuth Setup Guide](../guides/oauth-setup.md)
 
 ### For System Integrators
 
@@ -815,7 +814,6 @@ Access these resources for additional information:
 - **[Configuration Guide](../guides/configuration.md)** – Environment variables and settings configuration
 - **[Security Documentation](../architecture/security.md)** – API security considerations and best practices
 - **[Development Setup Guide](../development/setup.md)** – Testing API endpoints in local development
-- **[OAuth Setup Guide](../guides/oauth-setup.md)** – Authentication configuration with Microsoft Entra ID
 
 ---
 

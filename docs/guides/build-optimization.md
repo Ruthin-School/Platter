@@ -15,33 +15,7 @@ By default, optional features are **disabled** to provide the fastest build expe
 
 ## Available Features
 
-### 1. OAuth Authentication (`oauth`)
-
-**Status:** Optional (disabled by default)
-
-OAuth/OIDC authentication support for Microsoft Entra ID (Azure AD) integration.
-
-**Dependencies included:**
-- `actix_web_openidconnect`
-- `openidconnect`
-- `oauth2`
-
-**When to enable:**
-- When you need OAuth authentication in your deployment
-- When testing OAuth-related functionality
-- In production builds that require SSO
-
-**To enable:**
-```bash
-# Development
-cargo build --features oauth
-cargo run --features oauth
-
-# Release
-cargo build --release --features oauth
-```
-
-### 2. Accessibility Validation (`validate-a11y`)
+### 1. Accessibility Validation (`validate-a11y`)
 
 **Status:** Optional (disabled by default)
 
@@ -73,9 +47,7 @@ Typical compile times on a modern development machine (with optimizations):
 | Build Type | Time (Before) | Time (After) | Improvement | Notes |
 |------------|---------------|--------------|-------------|-------|
 | Default (no features) | ~30s | **~15s** | 50% faster | Fastest for development |
-| With `oauth` | ~45s | **~25s** | 44% faster | Adds OAuth dependencies |
 | With `validate-a11y` | ~35s | **~18s** | 49% faster | No nested build |
-| All features | ~50s | **~30s** | 40% faster | Full production build |
 | Incremental rebuild | ~20s | **~3s** | 85% faster | After initial build |
 
 ## Key Optimizations Applied
@@ -126,12 +98,6 @@ cargo run-dev  # or: cargo run (no features)
 # Incremental rebuilds are now 85% faster!
 ```
 
-### Testing OAuth Features
-```bash
-# Enable OAuth support
-cargo run --features oauth
-```
-
 ### Before Committing
 ```bash
 # Validate accessibility compliance (now runs separately, not in build.rs)
@@ -144,17 +110,17 @@ cargo a11y-verbose
 ### Production Builds
 ```bash
 # Use convenient alias
-cargo build-prod  # or: cargo build --release --features oauth,validate-a11y
+cargo build-prod  # or: cargo build --release --features validate-a11y
 ```
 
 ### CI/CD Pipeline
 ```yaml
 # Example GitHub Actions workflow
 - name: Build and test
-  run: cargo test --features oauth,validate-a11y
+  run: cargo test --features validate-a11y
   
 - name: Build release
-  run: cargo build --release --features oauth,validate-a11y
+  run: cargo build --release --features validate-a11y
 ```
 
 ## Dependency Optimization
@@ -194,12 +160,6 @@ This is useful when:
 
 ## Troubleshooting
 
-### "Missing OAuth dependencies" error
-**Solution:** Enable the `oauth` feature:
-```bash
-cargo build --features oauth
-```
-
 ### "Accessibility validation failed"
 **Solution 1:** Fix the reported issues
 **Solution 2:** Temporarily skip validation:
@@ -211,7 +171,7 @@ SKIP_A11Y_CHECK=1 cargo build --features validate-a11y
 **Solution:** Ensure you're not enabling unnecessary features:
 ```bash
 # Don't do this for development
-cargo build --features oauth,validate-a11y
+cargo build --features validate-a11y
 
 # Do this instead
 cargo build
@@ -274,9 +234,6 @@ The comprehensive optimizations provide:
 ```bash
 # Development (fastest)
 cargo dev && cargo run-dev
-
-# With OAuth
-cargo run-oauth
 
 # Validate accessibility
 cargo a11y

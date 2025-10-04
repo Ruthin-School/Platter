@@ -46,7 +46,7 @@ regex = { version = "1.11", default-features = false, features = ["std", "perf"]
 
 [features]
 default = []
-# Enable compile-time accessibility validation (no longer affects dependencies)
+# Enable compile-time accessibility validation
 validate-a11y = []
 
 [lib]

@@ -32,24 +32,8 @@ This section provides everything you need to get started with Platter, from init
 - Security settings configuration
 - CORS (Cross-Origin Resource Sharing) configuration
 - Production versus development mode differences
-- OAuth integration settings
 
 **Reading time:** Approximately 15 minutes
-
----
-
-### [🔐 OAuth Setup Guide](oauth-setup.md)
-
-**What this covers:** Configure Microsoft Entra ID authentication
-
-**Topics included:**
-- Azure AD (Active Directory) application registration process
-- OAuth configuration file setup
-- Email whitelist configuration
-- Testing OAuth authentication flow
-- Troubleshooting common issues
-
-**Reading time:** Approximately 20 minutes
 
 ---
 
@@ -69,7 +53,6 @@ Find quick links to frequently performed tasks:
 
 - [Set up development environment](../development/setup.md) – Configure your development workspace
 - [Deploy to production](../deployment/production.md) – Production deployment procedures
-- [Troubleshoot OAuth issues](../troubleshooting/oauth.md) – Resolve authentication problems
 - [Configure security settings](configuration.md#security-configuration) – Set up security features
 
 ---

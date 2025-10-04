@@ -63,7 +63,6 @@ Platter is built on a modern, secure architecture designed for performance and m
 
 **Authentication:**
 - **Session management:** Encrypted session cookies with secure flags
-- **OAuth support:** OAuth 2.0 with PKCE (Proof Key for Code Exchange)
 - **Password security:** Argon2 hashing algorithm
 
 ---
@@ -74,7 +73,6 @@ Platter is built on a modern, secure architecture designed for performance and m
 
 **Implemented security measures:**
 - **Argon2 password hashing** – Memory-hard algorithm resistant to attacks
-- **OAuth 2.0 with PKCE** – Secure third-party authentication
 - **Secure session management** – Encrypted cookies with HttpOnly and Secure flags
 - **Role-based access control** – Administrator and user permission levels
 

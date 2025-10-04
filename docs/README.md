@@ -25,7 +25,6 @@ Begin here if you are new to Platter. These guides cover installation and basic 
 
 - **[Quick Start Guide](guides/getting-started.md)** – Complete the installation and initial setup in 10 minutes
 - **[Configuration Guide](guides/configuration.md)** – Configure environment variables and system settings
-- **[OAuth Setup Guide](guides/oauth-setup.md)** – Configure Microsoft Entra ID authentication
 
 ### 🔧 Section 2: Development
 
@@ -69,7 +68,7 @@ Understand the system design and technical architecture.
 
 Resolve common problems using these troubleshooting guides.
 
-- **[OAuth Troubleshooting](troubleshooting/oauth.md)** – Resolve OAuth authentication and configuration issues
+- **[Troubleshooting Guide](troubleshooting/README.md)** – Resolve common issues and errors
 
 ---
 

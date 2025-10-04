@@ -118,7 +118,7 @@ pub async fn login_handler(
 /// Logout handler for POST /admin/logout
 pub async fn logout_handler(session: Session) -> impl Responder {
     session.purge();
-    
+
     HttpResponse::SeeOther()
         .insert_header(("Location", "/admin/login"))
         .finish()

@@ -109,8 +109,7 @@ Every documentation page now includes:
 ### 🎯 Getting Started
 Entry point for new users:
 - Quick Start Guide
-- Configuration Guide  
-- OAuth Setup Guide
+- Configuration Guide
 
 ### 🔧 Development
 Resources for contributors:
@@ -134,7 +133,7 @@ Technical documentation:
 
 ### 🔍 Troubleshooting
 Problem-solving guides:
-- OAuth Troubleshooting
+- General Troubleshooting Guide
 
 ## 🔄 Migration Guide
 

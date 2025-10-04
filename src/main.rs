@@ -113,7 +113,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     HttpServer::new(move || {
         log::debug!("Inside HttpServer closure");
 
-        let app = App::new()
+        App::new()
             .app_data(storage_data.clone())
             .app_data(tera_data.clone())
             .wrap(Logger::default())
@@ -249,9 +249,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         .finish()
                 }),
             )
-            .default_service(web::to(handlers::not_found_page));
-        
-        app
+            .default_service(web::to(handlers::not_found_page))
     })
     .bind("0.0.0.0:8080")?
     .run()
