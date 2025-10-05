@@ -10,17 +10,17 @@
 
 ## Quick Links
 
-- **[Production Deployment](docs/deployment/production.md)** - Complete production deployment guide
-- **[Docker Deployment](docs/deployment/docker.md)** - Containerized deployment
-- **[Deployment Documentation](docs/deployment/README.md)** - Deployment section overview
-- **[Configuration Guide](docs/guides/configuration.md)** - Environment configuration
-- **[Documentation Home](docs/README.md)** - Main documentation hub
+- **[Production Deployment](docs/deployment/production.md)** – Complete production deployment guide
+- **[Docker Deployment](docs/deployment/docker.md)** – Containerised deployment
+- **[Deployment Documentation](docs/deployment/README.md)** – Deployment section overview
+- **[Configuration Guide](docs/guides/configuration.md)** – Environment configuration
+- **[Documentation Home](docs/README.md)** – Main documentation hub
 
-## Why did this move?
+## Why Did This Move?
 
 We've restructured the documentation to provide:
-- Better organization and navigation
-- Consistent formatting across all docs
+- Better organisation and navigation
+- Consistent formatting across all documentation
 - Improved cross-referencing
 - Easier maintenance
 

@@ -1,17 +1,25 @@
-# Build Optimization Guide
+# 🔧 Build Optimisation Guide
 
-This guide explains the comprehensive build optimizations implemented in Platter for dramatically faster compile times.
+> **Navigation:** [Documentation Home](../README.md) → [Guides](README.md) → Build Optimisation
+
+**Reading Time:** Approximately 12 minutes
+**Complexity:** Intermediate
+**Prerequisites:** Understanding of Rust build system and Cargo
 
 ## Overview
 
-Platter uses multiple optimization strategies to minimize build times:
+This guide explains the comprehensive build optimisations implemented in Platter for dramatically faster compile times.
+
+Platter uses multiple optimisation strategies to minimise build times:
 - **Feature flags** for optional functionality
-- **Optimized build profiles** with smart compilation settings
+- **Optimised build profiles** with smart compilation settings
 - **Minimal dependency features** to reduce compilation surface
 - **Improved build.rs** that avoids nested builds
-- **Cargo config** with parallelization and incremental compilation
+- **Cargo configuration** with parallelisation and incremental compilation
 
 By default, optional features are **disabled** to provide the fastest build experience.
+
+---
 
 ## Available Features
 
@@ -26,10 +34,10 @@ Compile-time WCAG 2.1 Level AA accessibility validation for templates and CSS.
 
 **When to enable:**
 - Before committing changes to templates or CSS
-- In CI/CD pipelines
+- In CI/CD (Continuous Integration/Continuous Deployment) pipelines
 - When preparing for release builds
 
-**To enable:**
+**How to enable:**
 ```bash
 # Run validation
 cargo build --features validate-a11y
@@ -53,15 +61,17 @@ Typical compile times on a modern development machine (with optimizations):
 ## Key Optimizations Applied
 
 ### 1. Fixed Critical build.rs Issue
-**Problem:** The build script was running a nested `cargo build` command, essentially building the project twice!
-**Solution:** Removed nested build execution. Accessibility validation now runs as a separate manual step.
-**Impact:** Eliminated ~50% of build time when using `validate-a11y` feature.
+**Problem:** The build script was running a nested `cargo build` command, essentially building the project twice.
 
-### 2. Optimized Build Profiles
+**Solution:** Removed nested build execution. Accessibility validation now runs as a separate manual step.
+
+**Impact:** Eliminated approximately 50% of build time when using `validate-a11y` feature.
+
+### 2. Optimised Build Profiles
 Added smart compilation settings in [`Cargo.toml`](../../Cargo.toml):
-- **Dev profile:** Dependencies optimized at level 2, project at level 1 for fast iteration
-- **Release profile:** Full optimizations with thin LTO and single codegen unit
-- **CI profile:** Fast builds for testing without debug info
+- **Dev profile:** Dependencies optimised at level 2, project at level 1 for fast iteration
+- **Release profile:** Full optimisations with thin LTO and single codegen unit
+- **CI profile:** Fast builds for testing without debug information
 - **Incremental compilation:** Enabled by default with unpacked split-debuginfo
 
 ### 3. Minimal Dependency Features
@@ -69,6 +79,7 @@ All dependencies now use `default-features = false` with explicit feature select
 - Reduces unused code compilation
 - Faster link times
 - Smaller binary sizes
+
 **Example:** `tokio` only includes `macros` and `rt-multi-thread` instead of `full`
 
 ### 4. Parallel Compilation
@@ -138,11 +149,10 @@ tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread"] }
 tokio = { version = "1.47.1", features = ["full"] }  # Slower
 ```
 
-This reduces compile time by excluding unused Tokio features like:
+This reduces compile time by excluding unused Tokio features such as:
 - File system utilities
 - Process management
 - Signal handling
-- And more
 
 ## Environment Variables
 
@@ -184,9 +194,10 @@ cargo build
 3. **CI/CD:** Always enable all features to catch issues early
 4. **Production:** Build with all features for complete functionality
 
-## Further Optimization Tips
+## Further Optimisation Tips
 
 ### Optional Fast Linkers
+
 For even faster linking (especially on Linux):
 
 ```bash
@@ -202,12 +213,14 @@ sudo apt install lld
 ```
 
 ### Build Time Profiling
+
 Identify slow dependencies:
 ```bash
 cargo timings  # Opens HTML report showing compilation timeline
 ```
 
 ### Cargo Watch
+
 Auto-rebuild on file changes:
 ```bash
 cargo install cargo-watch
@@ -215,6 +228,7 @@ cargo watch -x run-dev
 ```
 
 ### Clean Builds
+
 If you experience cache corruption:
 ```bash
 cargo rebuild  # alias for: cargo clean && cargo build
@@ -222,7 +236,7 @@ cargo rebuild  # alias for: cargo clean && cargo build
 
 ## Summary
 
-The comprehensive optimizations provide:
+The comprehensive optimisations provide:
 - **40-50% faster clean builds**
 - **85% faster incremental rebuilds**
 - **Eliminated nested build.rs overhead**
@@ -231,6 +245,7 @@ The comprehensive optimizations provide:
 - **Smart build profiles for different use cases**
 
 ### Quick Reference
+
 ```bash
 # Development (fastest)
 cargo dev && cargo run-dev
@@ -245,4 +260,16 @@ cargo build-prod
 cargo timings
 ```
 
-Remember: **Default = Fast, Features = Functionality, Incremental = Lightning**
+## Related Documentation
+
+Access these resources for additional information:
+
+- **[Getting Started Guide](getting-started.md)** – Initial installation and setup
+- **[Development Setup](../development/setup.md)** – Development environment configuration
+- **[Contributing Guidelines](../development/contributing.md)** – Contribution standards
+
+---
+
+**Remember:** Default = Fast, Features = Functionality, Incremental = Lightning
+
+[← Back to Guides](README.md) | [Documentation Home](../README.md)

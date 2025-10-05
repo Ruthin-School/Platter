@@ -356,7 +356,7 @@ For questions or issues:
 3. Search [GitHub Issues](https://github.com/Ruthin-School/Platter/issues)
 4. Create a new issue with details
 
-## License
+## Licence
 
 This accessibility validation system is part of Platter and licensed under AGPLv3.
 

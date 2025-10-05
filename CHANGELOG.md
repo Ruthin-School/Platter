@@ -12,21 +12,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Compile-time WCAG 2.1 Level AA accessibility validation system
 - ARIA role and attribute validation
-- Color contrast ratio checking (4.5:1 normal text, 3:1 large text)
+- Colour contrast ratio checking (4.5:1 normal text, 3:1 large text)
 - Semantic HTML structure validation
 - Form label association validation
-- Template analyzer for heading hierarchy
+- Template analyser for heading hierarchy
 - Standalone a11y-check CLI tool for manual validation
 - Comprehensive CI/CD workflows (tests, security, coverage, accessibility)
 - Git hooks infrastructure with pre-commit and commit-msg validation
 - Detailed development workflow documentation
 - Branch protection and merge strategies guides
-- Build optimization guide with feature flag documentation
+- Build optimisation guide with feature flag documentation
 - Git workflow guide with SemVer and release tagging
 - Security audit configuration with cargo-deny
 
 ### Changed
-- Improved warning color contrast from 4.03:1 to 5.38:1 for WCAG AA compliance
+- Improved warning colour contrast from 4.03:1 to 5.38:1 for WCAG AA compliance
 - Refactored code to pass all clippy warnings with strict linting
 - Applied consistent code formatting across entire codebase
 - Enhanced button text detection in accessibility validator
@@ -48,19 +48,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - 2025-09-28
 
 ### Added
-- Comprehensive API documentation in API.md
-- Detailed design documentation in DESIGN.md
-- Complete development guide in DEVELOPMENT.md
-- Production deployment guide in DEPLOYMENT.md
-- Security best practices in SECURITY.md
+- Comprehensive API documentation in `API.md`
+- Detailed design documentation in `DESIGN.md`
+- Complete development guide in `DEVELOPMENT.md`
+- Production deployment guide in `DEPLOYMENT.md`
+- Security best practices in `SECURITY.md`
 - Enhanced README with detailed configuration instructions
-- Basic test module in src/main.rs
+- Basic test module in `src/main.rs`
 
 ### Changed
 - Updated application from version 0.3.0 to 0.4.0
 - Replaced `#[actix_web::main]` with `#[tokio::main]` for async runtime
-- Improved session security with environment variable support for SESSION_SECRET
-- Updated deprecated std::io::Error::new() to std::io::Error::other()
+- Improved session security with environment variable support for `SESSION_SECRET`
+- Updated deprecated `std::io::Error::new()` to `std::io::Error::other()`
 - Simplified error mapping syntax in handlers
 - Enhanced documentation with comprehensive tables of contents and detailed explanations
 
@@ -76,14 +76,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Menu preset functionality
 - Menu scheduling system
 - Admin interface improvements
-- Data validation and sanitization
+- Data validation and sanitisation
 - User session management
 
 ### Changed
 - Improved error handling and reporting
 - Enhanced template system with Tera
 - Updated to Rust 2024 edition
-- Refactored storage system for better performance
+- Refactored storage system for improved performance
 
 ## [0.2.0] - 2025-07-10
 

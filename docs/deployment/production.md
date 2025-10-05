@@ -30,7 +30,7 @@ Your target production system must have:
 |-------------|--------------|---------|
 | **Operating System** | Linux (recommended), Windows, or macOS | Application runtime environment |
 | **RAM (Random Access Memory)** | Minimum 256 MB, recommended 512 MB | Application memory requirements |
-| **Disk Space** | Minimum 500 MB for application and data | Storage for binary and data files |
+| **Disc Space** | Minimum 500 MB for application and data | Storage for binary and data files |
 | **Network** | Stable internet connection | API access and updates |
 | **Domain Name** | Recommended for production | Professional access and SSL/TLS certificates |
 
@@ -152,7 +152,7 @@ cargo build --release
 1. Code compiled with maximum optimisations
 2. Debug symbols removed
 3. Dead code eliminated
-4. Result: Smaller, faster binary
+4. Result: smaller, faster binary
 
 **Step 3.1.3: Locate Binary**
 

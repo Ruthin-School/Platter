@@ -70,7 +70,7 @@ rustc 1.80.0 (or higher)
 cargo 1.80.0 (or higher)
 ```
 
-> ⚠️ **Troubleshooting:** If commands are not recognised, restart your terminal and try again. The PATH environment variable requires a fresh terminal session to take effect.
+> ⚠️ **Troubleshooting:** If commands are not recognized, restart your terminal and try again. The PATH environment variable requires a fresh terminal session to take effect.
 
 ### 1.2: Git Version Control
 

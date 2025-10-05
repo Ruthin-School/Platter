@@ -557,9 +557,9 @@ enum MealType {
 ### 9.3: Vertical Scaling Considerations
 
 **Current resource efficiency:**
-- Memory usage: ~50-100 MB under typical load
-- CPU usage: Minimal except during request bursts
-- Disk I/O: Limited to session persistence and data updates
+- Memory usage: approximately 50-100 MB under typical load
+- CPU usage: minimal except during request bursts
+- Disc I/O: limited to session persistence and data updates
 
 **Scaling recommendations:**
 

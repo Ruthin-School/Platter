@@ -453,17 +453,17 @@ fn test_schedule_creation_requires_valid_date() {
 ```rust
 #[test]
 fn test_auth() {
-    // Too vague - what about auth is being tested?
+    // ❌ Too vague - what about auth is being tested?
 }
 
 #[test]
 fn test1() {
-    // No information about what is tested
+    // ❌ No information about what is tested
 }
 
 #[test]
 fn it_works() {
-    // Unclear what functionality is tested
+    // ❌ Unclear what functionality is tested
 }
 ```
 

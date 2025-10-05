@@ -1,18 +1,36 @@
-# Git Workflow
+# 🔀 Git Workflow Guide
 
-This document describes the Git workflow and best practices for the Platter project, including branching strategies, commit conventions, and release tagging.
+> **Navigation:** [Documentation Home](../README.md) → [Development](README.md) → Git Workflow
+
+**Reading Time:** Approximately 15 minutes
+**Complexity:** Intermediate
+**Prerequisites:** Basic Git knowledge and understanding of version control
+
+## What This Guide Covers
+
+This guide describes the Git workflow and best practices for the Platter project. You will learn about:
+
+1. Semantic versioning standards
+2. Release tagging procedures
+3. Creating and managing releases
+4. Tag naming conventions
+5. Best practices for Git workflows
+6. Automated tagging processes
+
+---
 
 ## Table of Contents
 
-- [Semantic Versioning](#semantic-versioning)
-- [Release Tagging](#release-tagging)
-- [Creating a New Release](#creating-a-new-release)
-- [Tag Naming Conventions](#tag-naming-conventions)
-- [Pushing Tags to Remote](#pushing-tags-to-remote)
-- [Best Practices](#best-practices)
-- [Automated Tagging](#automated-tagging)
+- [Section 1: Semantic Versioning](#section-1-semantic-versioning)
+- [Section 2: Release Tagging](#section-2-release-tagging)
+- [Section 3: Creating a New Release](#section-3-creating-a-new-release)
+- [Section 4: Tag Naming Conventions](#section-4-tag-naming-conventions)
+- [Section 5: Best Practices](#section-5-best-practices)
+- [Section 6: Automated Tagging](#section-6-automated-tagging)
 
-## Semantic Versioning
+---
+
+## Section 1: Semantic Versioning
 
 Platter follows [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) for version numbering.
 
@@ -40,7 +58,7 @@ Examples in order of precedence:
 0.1.0 < 0.2.0 < 0.3.0 < 1.0.0-alpha < 1.0.0-beta < 1.0.0-rc.1 < 1.0.0
 ```
 
-## Release Tagging
+## Section 2: Release Tagging
 
 Git tags are used to mark specific points in the repository's history as important, typically for releases.
 
@@ -66,11 +84,11 @@ Examples:
 
 The `v` prefix is mandatory for all release tags.
 
-## Creating a New Release
+## Section 3: Creating a New Release
 
 Follow these steps to create a new release:
 
-### 1. Update Version Number
+### Step 3.1: Update Version Number
 
 Update the version in [`Cargo.toml`](../../Cargo.toml:1):
 
@@ -80,7 +98,7 @@ name = "platter"
 version = "0.5.0"  # Update this
 ```
 
-### 2. Update CHANGELOG.md
+### Step 3.2: Update CHANGELOG.md
 
 Add a new section to [`CHANGELOG.md`](../../CHANGELOG.md:1) following the [Keep a Changelog](https://keepachangelog.com/) format:
 
@@ -100,7 +118,7 @@ Add a new section to [`CHANGELOG.md`](../../CHANGELOG.md:1) following the [Keep 
 - Security improvement description
 ```
 
-### 3. Commit Changes
+### Step 3.3: Commit Changes
 
 Commit the version bump and changelog updates:
 
@@ -109,7 +127,7 @@ git add Cargo.toml CHANGELOG.md
 git commit -m "chore: bump version to 0.5.0"
 ```
 
-### 4. Create Annotated Tag
+### Step 3.4: Create Annotated Tag
 
 Create an annotated tag with a detailed message:
 
@@ -130,7 +148,7 @@ Fixed:
 - Bug fix 1"
 ```
 
-### 5. Verify the Tag
+### Step 3.5: Verify the Tag
 
 Verify that the tag was created correctly:
 
@@ -142,7 +160,7 @@ git tag -l
 git show v0.5.0
 ```
 
-### 6. Push to Remote
+### Step 3.6: Push to Remote
 
 Push both the commit and the tag to the remote repository:
 
@@ -157,7 +175,7 @@ git push origin v0.5.0
 git push origin --tags
 ```
 
-## Tag Naming Conventions
+## Section 4: Tag Naming Conventions
 
 ### Release Tags
 
@@ -177,7 +195,7 @@ git push origin --tags
 - **Examples**: `v1.0.0+20251015`, `v1.0.0+build.123`
 - **Use**: Build-specific metadata (optional, rarely used)
 
-## Pushing Tags to Remote
+## Section 5: Pushing Tags to Remote
 
 ### Push a Single Tag
 
@@ -207,7 +225,7 @@ git ls-remote --tags origin
 git fetch --tags
 ```
 
-## Best Practices
+## Section 6: Best Practices
 
 ### DO
 
@@ -267,7 +285,7 @@ git tag v1.0.0
 - Ensure the codebase is in a releasable state
 - All tests should pass
 
-## Automated Tagging
+## Section 7: Automated Tagging
 
 For convenience, use the provided script to create tags for historical releases or automate the tagging process.
 
@@ -355,9 +373,9 @@ jobs:
           prerelease: false
 ```
 
-## Troubleshooting
+## Section 8: Troubleshooting
 
-### Deleting a Local Tag
+### 8.1: Deleting a Local Tag
 
 If you need to delete a tag locally:
 
@@ -365,7 +383,7 @@ If you need to delete a tag locally:
 git tag -d v0.5.0
 ```
 
-### Deleting a Remote Tag
+### 8.2: Deleting a Remote Tag
 
 ⚠️ **Use with extreme caution!** Only delete remote tags if absolutely necessary:
 
@@ -373,7 +391,7 @@ git tag -d v0.5.0
 git push origin --delete v0.5.0
 ```
 
-### Recreating a Tag
+### 8.3: Recreating a Tag
 
 If you need to recreate a tag (before pushing):
 
@@ -385,30 +403,36 @@ git tag -d v0.5.0
 git tag -a v0.5.0 -m "New message"
 ```
 
-### Listing Tags by Date
+### 8.4: Listing Tags by Date
 
 ```bash
 git tag --sort=-creatordate
 ```
 
-### Finding Tags Containing a Commit
+### 8.5: Finding Tags Containing a Commit
 
 ```bash
 git tag --contains <commit-hash>
 ```
 
-## References
+## External References
 
-- [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
-- [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-- [Git Tagging Documentation](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
-- [GitHub Releases Documentation](https://docs.github.com/en/repositories/releasing-projects-on-github)
+- [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) – Versioning specification
+- [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) – Changelog format standard
+- [Git Tagging Documentation](https://git-scm.com/book/en/v2/Git-Basics-Tagging) – Official Git documentation
+- [GitHub Releases Documentation](https://docs.github.com/en/repositories/releasing-projects-on-github) – GitHub release guide
 
 ## Related Documentation
 
-- [Branch Protection Rules](branch-protection.md) - GitHub branch protection configuration
-- [Merge Strategies Guide](merge-strategies.md) - Detailed merge strategy documentation
-- [Git Hooks](git-hooks.md) - Pre-commit and commit-msg hooks
-- [Contributing Guide](contributing.md) - How to contribute to Platter
-- [Development Setup](setup.md) - Setting up your development environment
-- [CHANGELOG.md](../../CHANGELOG.md) - Project changelog
+Access these resources for additional information:
+
+- **[Branch Protection Rules](branch-protection.md)** – GitHub branch protection configuration
+- **[Merge Strategies Guide](merge-strategies.md)** – Detailed merge strategy documentation
+- **[Git Hooks Guide](git-hooks.md)** – Pre-commit and commit-msg hooks
+- **[Contributing Guidelines](contributing.md)** – How to contribute to Platter
+- **[Development Setup](setup.md)** – Setting up your development environment
+- **[CHANGELOG.md](../../CHANGELOG.md)** – Project changelog
+
+---
+
+[← Back to Development](README.md) | [Documentation Home](../README.md)

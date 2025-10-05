@@ -62,7 +62,7 @@ The application uses Argon2, an industry-standard password hashing algorithm.
 - **Impossible to reverse:** Cannot derive original password from the hash
 - **Unique salts:** Identical passwords produce different hashes
 - **Memory-hard:** Resistant to GPU (Graphics Processing Unit) and ASIC (Application-Specific Integrated Circuit) attacks
-- **Time-consuming:** Deliberately slow to prevent brute force attacks
+- **Time-consuming:** Deliberately slow to prevent brute-force attacks
 
 ### 2.2: Session Management
 
@@ -369,7 +369,7 @@ Execute these security practices:
 1. Use `.env` files for local development
 2. Add `.env` to `.gitignore`
 3. Document required variables in `.env.example`
-4. Use secret management services in production (AWS Secrets Manager, HashiCorp Vault)
+4. Use secret management services in production (e.g., AWS Secrets Manager, HashiCorp Vault)
 
 **Example `.env.example` file:**
 ```bash
@@ -450,7 +450,7 @@ Send encrypted email to: [project maintainer email]
 2. **Assessment:** Within 7 days
 3. **Fix development:** Timeline provided after assessment
 4. **Testing:** Verification of fix
-5. **Disclosure:** Coordinated public disclosure
+5. **Disclosure:** Co-ordinated public disclosure
 
 ### 7.2: Known Security Considerations
 

@@ -76,7 +76,7 @@ cargo run
 
 The system will automatically download and compile dependencies on first run. This process may take several minutes.
 
-> 💡 **Build Optimization:** By default, optional features are disabled for faster builds. See the [Build Optimization Guide](docs/guides/build-optimization.md) to enable accessibility validation when needed.
+> 💡 **Build Optimisation:** By default, optional features are disabled for faster builds. See the [Build Optimisation Guide](docs/guides/build-optimization.md) to enable accessibility validation when needed.
 
 ### Step 4: Access the Application
 
@@ -100,7 +100,7 @@ Begin here if you are new to Platter:
 
 - **[Quick Start Guide](docs/guides/getting-started.md)** – Installation and initial setup procedures
 - **[Configuration Guide](docs/guides/configuration.md)** – Environment variables and system settings
-- **[Build Optimization Guide](docs/guides/build-optimization.md)** – Reduce compile times with feature flags
+- **[Build Optimisation Guide](docs/guides/build-optimization.md)** – Reduce compile times with feature flags
 - **[Accessibility Guide](ACCESSIBILITY.md)** – WCAG 2.1 Level AA compliance validation system
 
 ### 🔧 Development Resources
@@ -108,7 +108,7 @@ Begin here if you are new to Platter:
 Use these guides if you are contributing to the project:
 
 - **[Development Setup](docs/development/setup.md)** – Configure your development environment
-- **[Build Optimization Guide](docs/guides/build-optimization.md)** – Faster compilation with feature flags
+- **[Build Optimisation Guide](docs/guides/build-optimization.md)** – Faster compilation with feature flags
 - **[Contributing Guidelines](docs/development/contributing.md)** – Contribution procedures and standards
 - **[Testing Guide](docs/development/testing.md)** – Testing practices and methodologies
 

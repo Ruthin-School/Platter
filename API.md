@@ -10,15 +10,15 @@
 
 ## Quick Links
 
-- **[API Reference](docs/api/reference.md)** - Complete REST API documentation
-- **[API Documentation Index](docs/api/README.md)** - API section overview
-- **[Documentation Home](docs/README.md)** - Main documentation hub
+- **[API Reference](docs/api/reference.md)** – Complete REST API documentation
+- **[API Documentation Index](docs/api/README.md)** – API section overview
+- **[Documentation Home](docs/README.md)** – Main documentation hub
 
-## Why did this move?
+## Why Did This Move?
 
 We've restructured the documentation to provide:
-- Better organization and navigation
-- Consistent formatting across all docs
+- Better organisation and navigation
+- Consistent formatting across all documentation
 - Improved cross-referencing
 - Easier maintenance
 

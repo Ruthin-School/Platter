@@ -163,30 +163,30 @@ Follow these principles:
 
 1. **Descriptive naming:** Use names that explain purpose
    ```rust
-   // Good
+   // ✅ Good
    fn calculate_total_price(items: &[MenuItem]) -> f64
    
-   // Avoid
+   // ❌ Avoid
    fn calc(x: &[MenuItem]) -> f64
    ```
 
 2. **Small functions:** Each function should have one clear purpose
    ```rust
-   // Good - single responsibility
+   // ✅ Good - single responsibility
    fn validate_email(email: &str) -> bool
    fn send_notification(email: &str, message: &str) -> Result<()>
    
-   // Avoid - multiple responsibilities
+   // ❌ Avoid - multiple responsibilities
    fn validate_and_send(email: &str, message: &str) -> Result<()>
    ```
 
 3. **Clear comments:** Explain why, not what
    ```rust
-   // Good - explains reasoning
+   // ✅ Good - explains reasoning
    // Use Argon2 because it's memory-hard and resistant to GPU attacks
    let hash = argon2::hash_password(password)?;
    
-   // Avoid - states the obvious
+   // ❌ Avoid - states the obvious
    // Hash the password
    let hash = argon2::hash_password(password)?;
    ```
@@ -782,13 +782,13 @@ Content organised into logical sections...
 **Be clear and concise:**
 
 ```markdown
-<!-- Good - direct and clear -->
+<!-- ✅ Good - direct and clear -->
 Execute this command to install dependencies:
 ```bash
 cargo build
 ```
 
-<!-- Avoid - unnecessarily verbose -->
+<!-- ❌ Avoid - unnecessarily verbose -->
 In order to install the dependencies that are required
 for the project, you should execute the following command
 in your terminal window:
@@ -797,23 +797,23 @@ in your terminal window:
 **Use active voice:**
 
 ```markdown
-<!-- Good -->
+<!-- ✅ Good -->
 The server validates all inputs before processing.
 
-<!-- Avoid -->
+<!-- ❌ Avoid -->
 All inputs are validated by the server before they are processed.
 ```
 
 **Provide concrete examples:**
 
 ```markdown
-<!-- Good - specific example -->
+<!-- ✅ Good - specific example -->
 Set the PORT environment variable to change the server port:
 ```bash
 PORT=3000 cargo run
 ```
 
-<!-- Avoid - abstract explanation -->
+<!-- ❌ Avoid - abstract explanation -->
 You can configure the port using environment variables.
 ```
 
@@ -822,7 +822,7 @@ You can configure the port using environment variables.
 **Include complete, runnable examples:**
 
 ```rust
-// Good - complete example
+// ✅ Good - complete example
 use platter::MenuItem;
 
 fn main() {
@@ -833,7 +833,7 @@ fn main() {
     println!("Created: {}", item.name);
 }
 
-// Avoid - incomplete snippet
+// ❌ Avoid - incomplete snippet
 let item = MenuItem::new(/* ... */);
 ```
 

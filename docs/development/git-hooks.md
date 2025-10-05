@@ -1,6 +1,22 @@
-# Git Hooks
+# 🪝 Git Hooks Guide
 
-This document describes the Git hooks setup for the Platter project, including what they do, how to install them, and how to use them effectively.
+> **Navigation:** [Documentation Home](../README.md) → [Development](README.md) → Git Hooks
+
+**Reading Time:** Approximately 12 minutes
+**Complexity:** Beginner to Intermediate
+**Prerequisites:** Basic Git knowledge and command-line familiarity
+
+## What This Guide Covers
+
+This guide describes the Git hooks setup for the Platter project. You will learn about:
+
+1. What Git hooks are and why they're useful
+2. How to install and configure hooks
+3. Which hooks are active and what they validate
+4. How to use hooks effectively in your workflow
+5. Troubleshooting common hook issues
+
+---
 
 ## Overview
 
@@ -8,10 +24,12 @@ Git hooks are scripts that run automatically at certain points in the Git workfl
 
 ### Why Use Git Hooks?
 
-- **Early Feedback**: Catch issues before pushing to remote
+- **Early Feedback**: Catch issues before pushing to remote repository
 - **Consistent Quality**: Enforce standards across all contributors
 - **Faster Development**: Fix issues locally instead of waiting for CI/CD
 - **Better Git History**: Maintain clean, conventional commit messages
+
+---
 
 ## Installed Hooks
 
@@ -92,10 +110,10 @@ type(scope): description
 2. **Scope** is optional and should be in parentheses (e.g., `api`, `ui`, `auth`)
 3. **Description** must:
    - Start with a lowercase letter
-   - Use imperative, present tense ("add" not "added")
+   - Use imperative, present tense ('add' not 'added')
    - Be at least 10 characters long
    - Preferably be under 72 characters
-   - Not end with a period
+   - Not end with a full stop
 
 #### Valid Commit Examples
 
@@ -151,7 +169,7 @@ response structure. Clients must update to parse the new format.
 2. **pip** (Python package manager)
 3. **Rust toolchain** (cargo, rustfmt, clippy)
 
-### Step 1: Install Pre-commit Framework
+### Step 1: Install Pre-Commit Framework
 
 ```bash
 # Using pip
@@ -249,14 +267,14 @@ git commit --no-verify -m "emergency fix"
 git commit -n -m "emergency fix"
 ```
 
-Valid reasons to bypass:
+**Valid reasons to bypass:**
 - Emergency hotfix that must be deployed immediately
 - Hooks are failing due to external issues (network, tools)
-- You're making a WIP commit in a personal branch
+- You're making a WIP (Work In Progress) commit in a personal branch
 
-Invalid reasons to bypass:
-- "Hooks are annoying"
-- "I'll fix it later"
+**Invalid reasons to bypass:**
+- 'Hooks are annoying'
+- 'I'll fix it later'
 - Avoiding legitimate code quality issues
 
 ## Troubleshooting
@@ -471,16 +489,27 @@ pre-commit run --all-files
 - [Git Hooks Documentation](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)
 - [Cargo Documentation](https://doc.rust-lang.org/cargo/)
 
-## Support
+## Getting Help
 
 If you encounter issues with Git hooks:
 
-1. Check this troubleshooting section
-2. Run `pre-commit run --verbose` for detailed output
-3. Check `.git/hooks/` files are executable
-4. Verify all dependencies are installed
-5. Open an issue in the project repository
+1. **Check troubleshooting section** – Review the troubleshooting section above
+2. **Run verbose output** – Execute `pre-commit run --verbose` for detailed information
+3. **Verify permissions** – Check `.git/hooks/` files are executable with `ls -la .git/hooks/`
+4. **Check dependencies** – Verify all required tools are installed
+5. **Open an issue** – [Create an issue](https://github.com/Ruthin-School/Platter/issues/new) if problems persist
+
+## Related Documentation
+
+Access these resources for additional information:
+
+- **[Git Workflow Guide](git-workflow.md)** – Git workflow and release tagging
+- **[Branch Protection Guide](branch-protection.md)** – GitHub branch protection rules
+- **[Merge Strategies Guide](merge-strategies.md)** – Merge strategy documentation
+- **[Contributing Guidelines](contributing.md)** – Full contribution process
 
 ---
 
-**Remember**: Hooks are here to help maintain code quality and consistency. They catch issues early and save time in the long run. If a hook seems overly strict or causes problems, let's discuss adjusting it rather than bypassing it.
+**Remember**: Hooks are here to help maintain code quality and consistency. They catch issues early and save time in the long run. If a hook seems overly strict or causes problems, discuss adjusting it rather than bypassing it.
+
+[← Back to Development](README.md) | [Documentation Home](../README.md)

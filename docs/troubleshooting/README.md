@@ -59,10 +59,7 @@ echo $CORS_ALLOWED_ORIGINS
 
 **Step 4: Test in Isolation**
 
-```bash
-# Try in incognito/private browser window
-# This eliminates cached data and cookies
-```
+Use an incognito/private browser window to eliminate cached data and cookies.
 
 ---
 
@@ -117,7 +114,8 @@ python3 -m json.tool data/admin_users.json
 node -e "console.log(JSON.parse(require('fs').readFileSync('data/admin_users.json')))"
 ```
 
-**Expected result:** Formatted JSON output (file is valid)  
+**Expected result:** Formatted JSON output (file is valid)
+
 **Error result:** Syntax error with line number (file has errors)
 
 ---
@@ -128,7 +126,7 @@ node -e "console.log(JSON.parse(require('fs').readFileSync('data/admin_users.jso
 
 **Network tab usage:**
 1. Open developer tools (press F12)
-2. Navigate to "Network" tab
+2. Navigate to 'Network' tab
 3. Attempt the failing operation
 4. Examine requests and responses
 5. Look for HTTP status codes (4xx or 5xx indicate errors)

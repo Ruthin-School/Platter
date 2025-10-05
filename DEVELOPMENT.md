@@ -10,17 +10,17 @@
 
 ## Quick Links
 
-- **[Development Setup](docs/development/setup.md)** - Complete development environment setup
-- **[Contributing Guidelines](docs/development/contributing.md)** - How to contribute
-- **[Testing Guide](docs/development/testing.md)** - Testing practices
-- **[Development Documentation](docs/development/README.md)** - Development section overview
-- **[Documentation Home](docs/README.md)** - Main documentation hub
+- **[Development Setup](docs/development/setup.md)** – Complete development environment setup
+- **[Contributing Guidelines](docs/development/contributing.md)** – How to contribute
+- **[Testing Guide](docs/development/testing.md)** – Testing practices
+- **[Development Documentation](docs/development/README.md)** – Development section overview
+- **[Documentation Home](docs/README.md)** – Main documentation hub
 
-## Why did this move?
+## Why Did This Move?
 
 We've restructured the documentation to provide:
-- Better organization and navigation
-- Consistent formatting across all docs
+- Better organisation and navigation
+- Consistent formatting across all documentation
 - Improved cross-referencing
 - Easier maintenance
 

@@ -10,16 +10,16 @@
 
 ## Quick Links
 
-- **[Security Documentation](docs/architecture/security.md)** - Complete security guide
-- **[Architecture Documentation](docs/architecture/README.md)** - Architecture section overview
-- **[Configuration Guide](docs/guides/configuration.md)** - Security configuration
-- **[Documentation Home](docs/README.md)** - Main documentation hub
+- **[Security Documentation](docs/architecture/security.md)** – Complete security guide
+- **[Architecture Documentation](docs/architecture/README.md)** – Architecture section overview
+- **[Configuration Guide](docs/guides/configuration.md)** – Security configuration
+- **[Documentation Home](docs/README.md)** – Main documentation hub
 
-## Why did this move?
+## Why Did This Move?
 
 We've restructured the documentation to provide:
-- Better organization and navigation
-- Consistent formatting across all docs
+- Better organisation and navigation
+- Consistent formatting across all documentation
 - Improved cross-referencing
 - Easier maintenance
 

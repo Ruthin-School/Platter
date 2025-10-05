@@ -74,7 +74,7 @@ cargo --version
 - Rust version number (must be 1.80 or higher)
 - Cargo version number
 
-> ⚠️ **Troubleshooting:** If commands are not recognised, restart your terminal and try again. The PATH environment variable requires a fresh terminal session to take effect.
+> ⚠️ **Troubleshooting:** If commands are not recognized, restart your terminal and try again. The PATH environment variable requires a fresh terminal session to take effect.
 
 ---
 

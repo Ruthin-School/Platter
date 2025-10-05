@@ -310,20 +310,34 @@ Complete these requirements before production deployment:
 
 ## 📁 Section 5: Configuration Files
 
-This section explains JSON configuration files.
+This section explains the hybrid TOML/JSON configuration system.
+
+### Configuration Directory Structure
+
+TOML configuration files (human-editable):
+
+```
+config/
+├── admin.toml              # Admin users (❌ DO NOT COMMIT)
+├── admin.toml.example      # Admin template (✅ safe to commit)
+├── validation.toml         # Validation rules (✅ safe to commit)
+└── settings.toml           # App settings (✅ safe to commit)
+```
 
 ### Data Directory Structure
 
-The application uses these JSON files for data storage:
+JSON data files (application-managed):
 
 ```
 data/
-├── admin_users.json        # Admin user credentials
-├── menu_items.json         # Menu items database
-├── menu_presets.json       # Reusable menu presets
-├── menu_schedules.json     # Scheduled menus
-└── notices.json            # Announcements and notices
+├── menu_items.json         # Menu items (❌ DO NOT COMMIT)
+├── menu_items.json.example # Menu template (✅ safe to commit)
+├── menu_presets.json       # Menu presets (❌ DO NOT COMMIT)
+├── menu_schedules.json     # Menu schedules (❌ DO NOT COMMIT)
+└── notices.json            # Announcements (❌ DO NOT COMMIT)
 ```
+
+> 📘 **Note:** v0.8.0 uses enhanced JSON format with metadata wrappers. See [`STORAGE_ARCHITECTURE.md`](../../STORAGE_ARCHITECTURE.md) for details.
 
 #### Required File Permissions
 
@@ -483,4 +497,6 @@ Access these resources for additional information:
 
 ---
 
-[← Back to Getting Started](README.md) | [Documentation Home](../README.md)
+---
+
+[← Back to Guides](README.md) | [Documentation Home](../README.md)

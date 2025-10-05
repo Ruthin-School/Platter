@@ -25,11 +25,11 @@ This guide provides comprehensive instructions for deploying Platter using Docke
 
 **Docker Engine:** Version 20.10 or higher
 
-**Docker Compose:** Version 2.0 or higher (optional, for compose deployment)
+**Docker Compose:** Version 2.0 or higher (optional, for Compose deployment)
 
 **System requirements:**
 - 512 MB RAM (Random Access Memory) minimum
-- 1 GB disk space for images and containers
+- 1 GB disc space for images and containers
 - Linux, macOS, or Windows operating system
 
 ### 1.2: Docker Installation
@@ -918,7 +918,8 @@ Complete these tasks in sequence:
 Access these resources for additional information:
 
 - **[Production Deployment Guide](production.md)** – Non-containerised deployment instructions
-- **[Configuration Guide](../guides/configuration.md)** – Environment variables and settings reference
+- **[Production Deployment Guide](production.md)** – Non-containerised deployment
+- **[Configuration Guide](../guides/configuration.md)** – Environment variables reference
 - **[Security Documentation](../architecture/security.md)** – Security best practices
 - **[Getting Started Guide](../guides/getting-started.md)** – Initial setup instructions
 
